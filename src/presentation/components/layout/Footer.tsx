@@ -19,22 +19,23 @@ const footerLinks = {
   product: [
     { name: 'ฟีเจอร์', href: '#features' },
     { name: 'ราคา', href: '#pricing' },
-    { name: 'วิธีใช้งาน', href: '#' },
-    { name: 'อัปเดต', href: '#' },
+    { name: 'วิธีใช้งาน', href: '/how-to-use' },
+    { name: 'อัปเดต', href: '/updates' },
   ],
   company: [
-    { name: 'เกี่ยวกับเรา', href: '#' },
-    { name: 'บล็อก', href: '#' },
+    { name: 'เกี่ยวกับเรา', href: '/about' },
+    { name: 'บล็อก', href: '/blog' },
     { name: 'ติดต่อ', href: '#contact' },
-    { name: 'ร่วมงาน', href: '#' },
+    { name: 'ร่วมงาน', href: '/careers' },
   ],
   support: [
-    { name: 'ศูนย์ช่วยเหลือ', href: '#' },
-    { name: 'ข้อกำหนด', href: '#' },
-    { name: 'นโยบายความเป็นส่วนตัว', href: '#' },
-    { name: 'สถานะระบบ', href: '#' },
+    { name: 'ศูนย์ช่วยเหลือ', href: '/help' },
+    { name: 'ข้อกำหนด', href: '/terms' },
+    { name: 'นโยบายความเป็นส่วนตัว', href: '/privacy' },
+    { name: 'สถานะระบบ', href: '/status' },
   ],
 };
+
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
