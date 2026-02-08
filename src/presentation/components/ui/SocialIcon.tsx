@@ -12,7 +12,7 @@ type Platform = 'facebook' | 'instagram' | 'twitter';
 
 interface SocialIconProps {
   platform: Platform;
-  size?: 'sm' | 'md' | 'lg';
+  size?: 'xs' | 'sm' | 'md' | 'lg';
   showLabel?: boolean;
   onClick?: () => void;
   className?: string;
@@ -46,6 +46,7 @@ const platformConfig = {
 };
 
 const sizeConfig = {
+  xs: { icon: 'w-3 h-3', wrapper: 'p-1', text: 'text-xs' },
   sm: { icon: 'w-4 h-4', wrapper: 'p-2', text: 'text-xs' },
   md: { icon: 'w-5 h-5', wrapper: 'p-2.5', text: 'text-sm' },
   lg: { icon: 'w-6 h-6', wrapper: 'p-3', text: 'text-base' },
