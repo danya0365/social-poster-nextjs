@@ -2,13 +2,17 @@
 
 /**
  * DashboardHeader
- * Top header for dashboard pages
+ * Top header for dashboard pages with user info
  */
 
 import { ThemeToggle } from '@/src/presentation/components/layout/ThemeToggle';
 import { AnimatedButton } from '@/src/presentation/components/ui/AnimatedButton';
+import { useAuthStore } from '@/src/stores/authStore';
 import { animated, useSpring } from '@react-spring/web';
-import { Bell, Menu, Plus, Search, User } from 'lucide-react';
+import { Bell, ChevronDown, Crown, LogOut, Menu, Plus, Search, Settings, User } from 'lucide-react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
 interface DashboardHeaderProps {
   isMobile: boolean;
@@ -17,11 +21,20 @@ interface DashboardHeaderProps {
 }
 
 export function DashboardHeader({ isMobile, isSidebarOpen, onToggleSidebar }: DashboardHeaderProps) {
+  const router = useRouter();
+  const { user, logout, isAuthenticated } = useAuthStore();
+  const [showUserMenu, setShowUserMenu] = useState(false);
+
   const headerSpring = useSpring({
     from: { opacity: 0, y: -20 },
     to: { opacity: 1, y: 0 },
     config: { tension: 200, friction: 20 },
   });
+
+  const handleLogout = () => {
+    logout();
+    router.push('/');
+  };
 
   return (
     <animated.header
@@ -58,33 +71,120 @@ export function DashboardHeader({ isMobile, isSidebarOpen, onToggleSidebar }: Da
         {/* Right side */}
         <div className="flex items-center space-x-3">
           {/* Create Post Button */}
-          <AnimatedButton variant="gradient" size="sm" className="hidden sm:flex">
-            <Plus className="w-4 h-4 mr-1" />
-            สร้างโพสต์
-          </AnimatedButton>
+          <Link href="/dashboard/posts">
+            <AnimatedButton variant="gradient" size="sm" className="hidden sm:flex">
+              <Plus className="w-4 h-4 mr-1" />
+              สร้างโพสต์
+            </AnimatedButton>
+          </Link>
 
           {/* Mobile create button */}
-          <button className="sm:hidden p-2 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+          <Link href="/dashboard/posts" className="sm:hidden p-2 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 text-white">
             <Plus className="w-5 h-5" />
-          </button>
+          </Link>
 
           {/* Notifications */}
-          <button className="relative p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+          <Link 
+            href="/dashboard/notifications"
+            className="relative p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+          >
             <Bell className="w-5 h-5 text-gray-600 dark:text-gray-400" />
             <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full" />
-          </button>
+          </Link>
 
           {/* Theme Toggle */}
           <ThemeToggle />
 
           {/* User menu */}
-          <button className="flex items-center space-x-2 p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center">
-              <User className="w-4 h-4 text-white" />
-            </div>
-          </button>
+          <div className="relative">
+            <button 
+              onClick={() => setShowUserMenu(!showUserMenu)}
+              className="flex items-center space-x-2 p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            >
+              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center">
+                <User className="w-4 h-4 text-white" />
+              </div>
+              {!isMobile && user && (
+                <>
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300 max-w-[100px] truncate">
+                    {user.name}
+                  </span>
+                  <ChevronDown className="w-4 h-4 text-gray-400" />
+                </>
+              )}
+            </button>
+
+            {/* Dropdown */}
+            {showUserMenu && (
+              <>
+                <div 
+                  className="fixed inset-0 z-10" 
+                  onClick={() => setShowUserMenu(false)} 
+                />
+                <div className="absolute right-0 top-full mt-2 w-64 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden z-20">
+                  {/* User info */}
+                  <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center">
+                        <User className="w-5 h-5 text-white" />
+                      </div>
+                      <div>
+                        <p className="font-medium text-gray-900 dark:text-white">
+                          {user?.name || 'Guest'}
+                        </p>
+                        <p className="text-sm text-gray-500 truncate">
+                          {user?.email || ''}
+                        </p>
+                      </div>
+                    </div>
+                    {user?.isDemo && (
+                      <div className="mt-3 px-2 py-1 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 rounded-lg text-xs text-center">
+                        Demo Account
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Plan badge */}
+                  {user && (
+                    <div className="p-3 border-b border-gray-200 dark:border-gray-700">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-gray-600 dark:text-gray-400">แพ็กเกจ</span>
+                        <span className="flex items-center gap-1 text-sm font-medium text-blue-600">
+                          <Crown className="w-4 h-4" />
+                          {user.plan === 'free' ? 'ฟรี' : 
+                           user.plan === 'monthly' ? '1 เดือน' :
+                           user.plan === 'quarterly' ? '3 เดือน' : 
+                           user.plan === 'yearly' ? '1 ปี' : '1 สัปดาห์'}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Menu items */}
+                  <div className="p-2">
+                    <Link
+                      href="/dashboard/settings"
+                      onClick={() => setShowUserMenu(false)}
+                      className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300"
+                    >
+                      <Settings className="w-4 h-4" />
+                      ตั้งค่า
+                    </Link>
+                    <button
+                      onClick={handleLogout}
+                      className="w-full flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-red-600"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      ออกจากระบบ
+                    </button>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
         </div>
       </div>
     </animated.header>
   );
 }
+

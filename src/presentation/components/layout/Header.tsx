@@ -5,8 +5,9 @@
  * Main navigation header with social media style design
  */
 
+import { useAuthStore } from '@/src/stores/authStore';
 import { animated, useSpring } from '@react-spring/web';
-import { Menu, X, Zap } from 'lucide-react';
+import { LogIn, Menu, UserPlus, X, Zap } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
 import { ThemeToggle } from './ThemeToggle';
@@ -20,6 +21,7 @@ const navLinks = [
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { isAuthenticated, user } = useAuthStore();
 
   const logoSpring = useSpring({
     from: { opacity: 0, x: -20 },
@@ -68,18 +70,46 @@ export function Header() {
           <div className="flex items-center space-x-3">
             <ThemeToggle />
             
-            {/* CTA Button */}
-            <Link
-              href="/login"
-              className="hidden sm:inline-flex items-center px-4 py-2 rounded-full 
-                bg-gradient-to-r from-blue-600 to-purple-600 
-                text-white font-medium text-sm
-                hover:from-blue-700 hover:to-purple-700
-                transform hover:scale-105 transition-all duration-200
-                shadow-lg shadow-blue-500/25"
-            >
-              เริ่มใช้งาน
-            </Link>
+            {isAuthenticated ? (
+              /* Already logged in - go to dashboard */
+              <Link
+                href="/dashboard"
+                className="hidden sm:inline-flex items-center px-4 py-2 rounded-full 
+                  bg-gradient-to-r from-blue-600 to-purple-600 
+                  text-white font-medium text-sm
+                  hover:from-blue-700 hover:to-purple-700
+                  transform hover:scale-105 transition-all duration-200
+                  shadow-lg shadow-blue-500/25"
+              >
+                ไปยัง Dashboard
+              </Link>
+            ) : (
+              /* Not logged in - show login/register */
+              <>
+                <Link
+                  href="/auth/login"
+                  className="hidden sm:inline-flex items-center gap-1 px-4 py-2 rounded-full 
+                    text-gray-700 dark:text-gray-300 font-medium text-sm
+                    hover:bg-gray-100 dark:hover:bg-gray-800
+                    transition-all duration-200"
+                >
+                  <LogIn className="w-4 h-4" />
+                  เข้าสู่ระบบ
+                </Link>
+                <Link
+                  href="/auth/register"
+                  className="hidden sm:inline-flex items-center gap-1 px-4 py-2 rounded-full 
+                    bg-gradient-to-r from-blue-600 to-purple-600 
+                    text-white font-medium text-sm
+                    hover:from-blue-700 hover:to-purple-700
+                    transform hover:scale-105 transition-all duration-200
+                    shadow-lg shadow-blue-500/25"
+                >
+                  <UserPlus className="w-4 h-4" />
+                  สมัครฟรี
+                </Link>
+              </>
+            )}
 
             {/* Mobile menu button */}
             <button
@@ -112,12 +142,30 @@ export function Header() {
                   {link.name}
                 </Link>
               ))}
-              <Link
-                href="/login"
-                className="block px-4 py-3 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 text-white text-center font-medium"
-              >
-                เริ่มใช้งาน
-              </Link>
+              {isAuthenticated ? (
+                <Link
+                  href="/dashboard"
+                  className="block px-4 py-3 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 text-white text-center font-medium"
+                >
+                  ไปยัง Dashboard
+                </Link>
+              ) : (
+                <>
+                  <Link
+                    href="/auth/login"
+                    onClick={() => setIsMenuOpen(false)}
+                    className="block px-4 py-3 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-center"
+                  >
+                    เข้าสู่ระบบ
+                  </Link>
+                  <Link
+                    href="/auth/register"
+                    className="block px-4 py-3 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 text-white text-center font-medium"
+                  >
+                    สมัครฟรี
+                  </Link>
+                </>
+              )}
             </div>
           </animated.div>
         )}
