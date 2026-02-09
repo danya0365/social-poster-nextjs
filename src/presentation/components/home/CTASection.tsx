@@ -5,6 +5,7 @@
  * Call-to-action section at the bottom of home page
  */
 
+import { siteConfig } from '@/src/config/site.config';
 import { AnimatedButton } from '@/src/presentation/components/ui/AnimatedButton';
 import { animated, useSpring } from '@react-spring/web';
 import { ArrowRight, MessageCircle, Sparkles } from 'lucide-react';
@@ -52,7 +53,7 @@ export function CTASection() {
         <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-6">
           พร้อมเพิ่มยอดขายด้วย
           <br />
-          <span className="text-yellow-300">POSTDEE 24HR</span> แล้วหรือยัง?
+          <span className="text-yellow-300">{siteConfig.name}</span> แล้วหรือยัง?
         </h2>
 
         {/* Description */}

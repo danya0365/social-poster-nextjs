@@ -5,6 +5,7 @@
  * Company information and team
  */
 
+import { siteConfig } from '@/src/config/site.config';
 import { MainLayout } from '@/src/presentation/components/layout/MainLayout';
 import { animated, useSpring } from '@react-spring/web';
 import {
@@ -67,7 +68,7 @@ export default function AboutPage() {
               <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-6">
                 เกี่ยวกับ{' '}
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
-                  POSTDEE
+                  {siteConfig.name}
                 </span>
               </h1>
               <p className="text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
@@ -107,7 +108,7 @@ export default function AboutPage() {
             </h2>
             <div className="prose dark:prose-invert max-w-none text-gray-600 dark:text-gray-400">
               <p className="text-lg leading-relaxed mb-6">
-                POSTDEE เริ่มต้นจากความต้องการที่จะช่วยเหลือธุรกิจขนาดเล็กในประเทศไทย
+                {siteConfig.name} เริ่มต้นจากความต้องการที่จะช่วยเหลือธุรกิจขนาดเล็กในประเทศไทย
                 ให้สามารถโปรโมทสินค้าและบริการได้อย่างมีประสิทธิภาพ โดยไม่ต้องเสียเวลานั่งโพสต์ทั้งวัน
               </p>
               <p className="text-lg leading-relaxed mb-6">
@@ -115,7 +116,7 @@ export default function AboutPage() {
                 พร้อมเพิ่มยอดขายได้อย่างต่อเนื่อง
               </p>
               <p className="text-lg leading-relaxed">
-                ปัจจุบัน POSTDEE มีผู้ใช้งานมากกว่า 10,000 รายทั่วประเทศ
+                ปัจจุบัน {siteConfig.name} มีผู้ใช้งานมากกว่า 10,000 รายทั่วประเทศ
                 และช่วยสร้างโพสต์สำเร็จมากกว่า 1 ล้านโพสต์
               </p>
             </div>

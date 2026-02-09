@@ -23,7 +23,7 @@ export const useThemeStore = create<ThemeState>()(
       setTheme: (theme) => set({ theme }),
     }),
     {
-      name: 'postdee-theme',
+      name: 'socialflow-theme',
     }
   )
 );

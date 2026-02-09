@@ -5,18 +5,19 @@
  * Sidebar navigation for the dashboard
  */
 
+import { siteConfig } from '@/src/config/site.config';
 import { animated, useSpring } from '@react-spring/web';
 import {
-    BarChart3,
-    Calendar,
-    ChevronLeft,
-    FileEdit,
-    LayoutDashboard,
-    MessageSquare,
-    Settings,
-    Share2,
-    Users,
-    Zap,
+  BarChart3,
+  Calendar,
+  ChevronLeft,
+  FileEdit,
+  LayoutDashboard,
+  MessageSquare,
+  Settings,
+  Share2,
+  Users,
+  Zap,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -115,7 +116,7 @@ export function DashboardSidebar({ isCollapsed, onToggleCollapse }: DashboardSid
           </div>
           {!isCollapsed && (
             <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent whitespace-nowrap">
-              POSTDEE
+              {siteConfig.name}
             </span>
           )}
         </Link>

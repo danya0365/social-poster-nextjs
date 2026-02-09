@@ -5,6 +5,7 @@
  * Main footer with social media links and branding
  */
 
+import { siteConfig } from '@/src/config/site.config';
 import { animated, useSpring } from '@react-spring/web';
 import { Facebook, Instagram, Mail, MapPin, Phone, Twitter, Zap } from 'lucide-react';
 import Link from 'next/link';
@@ -57,7 +58,7 @@ export function Footer() {
                 </div>
               </div>
               <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                POSTDEE 24HR
+                {siteConfig.name}
               </span>
             </Link>
             <p className="text-gray-600 dark:text-gray-400 mb-6 max-w-md">
@@ -69,11 +70,11 @@ export function Footer() {
             <div className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
               <div className="flex items-center space-x-2">
                 <Mail className="w-4 h-4" />
-                <span>support@postdee.com</span>
+                <span>{siteConfig.contact.email}</span>
               </div>
               <div className="flex items-center space-x-2">
                 <Phone className="w-4 h-4" />
-                <span>02-XXX-XXXX</span>
+                <span>{siteConfig.contact.phone}</span>
               </div>
               <div className="flex items-center space-x-2">
                 <MapPin className="w-4 h-4" />
@@ -149,7 +150,7 @@ export function Footer() {
         <div className="mt-12 pt-8 border-t border-gray-200 dark:border-gray-800">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <p className="text-gray-600 dark:text-gray-400 text-sm">
-              © {currentYear} POSTDEE. All rights reserved.
+              © {currentYear} {siteConfig.name}. All rights reserved.
             </p>
             <p className="text-gray-500 dark:text-gray-500 text-sm">
               Made with ❤️ in Thailand

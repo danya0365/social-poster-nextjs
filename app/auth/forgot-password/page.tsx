@@ -4,6 +4,7 @@
  * Forgot Password Page
  */
 
+import { siteConfig } from '@/src/config/site.config';
 import { useAuthStore } from '@/src/stores/authStore';
 import { animated, useSpring } from '@react-spring/web';
 import { AlertCircle, ArrowLeft, CheckCircle2, Mail, Zap } from 'lucide-react';
@@ -39,7 +40,7 @@ export default function ForgotPasswordPage() {
               <Zap className="w-8 h-8 text-white" />
             </div>
             <span className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
-              POSTDEE
+              {siteConfig.name}
             </span>
           </Link>
         </div>

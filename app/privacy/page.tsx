@@ -4,6 +4,7 @@
  * Privacy Policy Page
  */
 
+import { siteConfig } from '@/src/config/site.config';
 import { MainLayout } from '@/src/presentation/components/layout/MainLayout';
 import { animated, useSpring } from '@react-spring/web';
 import { Shield } from 'lucide-react';
@@ -102,8 +103,8 @@ export default function PrivacyPage() {
               </h2>
               <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
                 หากมีคำถามเกี่ยวกับนโยบายนี้ กรุณาติดต่อ:{' '}
-                <a href="mailto:privacy@postdee.com" className="text-blue-600 hover:underline">
-                  privacy@postdee.com
+                <a href={`mailto:${siteConfig.contact.privacy}`} className="text-blue-600 hover:underline">
+                  {siteConfig.contact.privacy}
                 </a>
               </p>
             </section>

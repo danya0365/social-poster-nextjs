@@ -4,6 +4,7 @@
  * Careers Page
  */
 
+import { siteConfig } from '@/src/config/site.config';
 import { MainLayout } from '@/src/presentation/components/layout/MainLayout';
 import { animated, useSpring } from '@react-spring/web';
 import { ArrowRight, Briefcase, Clock, Coffee, Heart, MapPin, Users, Zap } from 'lucide-react';
@@ -143,7 +144,7 @@ export default function CareersPage() {
               ส่ง Resume มาให้เราดูได้เลย เราพร้อมเปิดรับคนเก่งเสมอ
             </p>
             <a
-              href="mailto:careers@postdee.com"
+              href={`mailto:careers@${siteConfig.url.replace('https://', '')}`} // Assuming careers@domain.com
               className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-xl hover:shadow-lg transition-all"
             >
               ส่ง Resume

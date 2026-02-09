@@ -5,6 +5,7 @@
  * App settings and preferences
  */
 
+import { siteConfig } from '@/src/config/site.config';
 import { AnimatedButton } from '@/src/presentation/components/ui/AnimatedButton';
 import { animated, useSpring } from '@react-spring/web';
 import {
@@ -144,7 +145,7 @@ function ProfileSettings() {
           </label>
           <input
             type="text"
-            defaultValue="พอสต์ดี"
+            defaultValue={siteConfig.name}
             className="w-full px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
           />
         </div>
@@ -154,7 +155,7 @@ function ProfileSettings() {
           </label>
           <input
             type="text"
-            defaultValue="แอดมิน"
+            defaultValue="Admin"
             className="w-full px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
           />
         </div>
@@ -164,7 +165,7 @@ function ProfileSettings() {
           </label>
           <input
             type="email"
-            defaultValue="admin@postdee.com"
+            defaultValue={siteConfig.demo.adminEmail}
             className="w-full px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
           />
         </div>
@@ -302,7 +303,7 @@ function BillingSettings() {
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm opacity-80">แพ็กเกจปัจจุบัน</p>
-            <h2 className="text-2xl font-bold mt-1">POSTDEE Pro</h2>
+            <h2 className="text-2xl font-bold mt-1">{siteConfig.name} Pro</h2>
             <p className="text-sm opacity-80 mt-2">หมดอายุ: 28 ก.พ. 2026</p>
           </div>
           <div className="text-right">

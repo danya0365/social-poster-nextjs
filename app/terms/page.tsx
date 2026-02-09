@@ -4,6 +4,7 @@
  * Terms of Service Page
  */
 
+import { siteConfig } from '@/src/config/site.config';
 import { MainLayout } from '@/src/presentation/components/layout/MainLayout';
 import { animated, useSpring } from '@react-spring/web';
 import { FileText } from 'lucide-react';
@@ -34,7 +35,7 @@ export default function TermsPage() {
                 1. การยอมรับข้อกำหนด
               </h2>
               <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
-                โดยการเข้าถึงและใช้งานบริการ POSTDEE ถือว่าคุณยอมรับและตกลงที่จะปฏิบัติตามข้อกำหนดและเงื่อนไขเหล่านี้
+                โดยการเข้าถึงและใช้งานบริการ {siteConfig.name} ถือว่าคุณยอมรับและตกลงที่จะปฏิบัติตามข้อกำหนดและเงื่อนไขเหล่านี้
                 หากคุณไม่เห็นด้วยกับข้อกำหนดใดๆ กรุณาหยุดใช้บริการของเรา
               </p>
             </section>
@@ -44,7 +45,7 @@ export default function TermsPage() {
                 2. คำอธิบายบริการ
               </h2>
               <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
-                POSTDEE เป็นแพลตฟอร์มจัดการ Social Media ที่ช่วยให้ผู้ใช้สามารถ:
+                {siteConfig.name} เป็นแพลตฟอร์มจัดการ Social Media ที่ช่วยให้ผู้ใช้สามารถ:
               </p>
               <ul className="list-disc pl-6 text-gray-600 dark:text-gray-400 mt-4 space-y-2">
                 <li>โพสต์เนื้อหาอัตโนมัติไปยังกลุ่ม Facebook</li>
@@ -95,8 +96,8 @@ export default function TermsPage() {
               </h2>
               <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
                 หากมีคำถามเกี่ยวกับข้อกำหนดนี้ กรุณาติดต่อ:{' '}
-                <a href="mailto:legal@postdee.com" className="text-blue-600 hover:underline">
-                  legal@postdee.com
+                <a href={`mailto:${siteConfig.contact.legal}`} className="text-blue-600 hover:underline">
+                  {siteConfig.contact.legal}
                 </a>
               </p>
             </section>

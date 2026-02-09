@@ -5,6 +5,7 @@
  * Main navigation header with social media style design
  */
 
+import { siteConfig } from '@/src/config/site.config';
 import { useAuthStore } from '@/src/stores/authStore';
 import { animated, useSpring } from '@react-spring/web';
 import { LogIn, Menu, UserPlus, X, Zap } from 'lucide-react';
@@ -52,7 +53,7 @@ export function Header() {
                 </div>
               </div>
               <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                POSTDEE
+                {siteConfig.name}
               </span>
             </Link>
           </animated.div>

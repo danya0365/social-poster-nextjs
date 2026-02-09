@@ -5,6 +5,7 @@
  * Main hero section with animated gradient background and dashboard preview
  */
 
+import { siteConfig } from '@/src/config/site.config';
 import { AnimatedButton } from '@/src/presentation/components/ui/AnimatedButton';
 import { SocialIcon } from '@/src/presentation/components/ui/SocialIcon';
 import { animated, useSpring, useTrail } from '@react-spring/web';
@@ -168,7 +169,7 @@ export function HeroSection() {
                 </div>
                 <div className="flex-1 flex justify-center">
                   <div className="px-4 py-1 rounded-lg bg-gray-700/50 text-gray-400 text-sm">
-                    dashboard.postdee.com
+                    {siteConfig.dashboard.urlDisplay}
                   </div>
                 </div>
               </div>

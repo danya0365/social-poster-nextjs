@@ -5,6 +5,7 @@
  * FAQ and support resources
  */
 
+import { siteConfig } from '@/src/config/site.config';
 import { MainLayout } from '@/src/presentation/components/layout/MainLayout';
 import { animated, useSpring } from '@react-spring/web';
 import {
@@ -29,8 +30,8 @@ const categories = [
 
 const faqs = [
   {
-    q: 'POSTDEE คืออะไร?',
-    a: 'POSTDEE คือระบบโพสต์ขายอัตโนมัติ 24 ชม. ที่ช่วยให้คุณโพสต์สินค้าไปยังกลุ่ม Facebook ได้อัตโนมัติ โดยใช้เทคโนโลยี AI ช่วยจัดการ',
+    q: `${siteConfig.name} คืออะไร?`,
+    a: `${siteConfig.name} คือระบบโพสต์ขายอัตโนมัติ 24 ชม. ที่ช่วยให้คุณโพสต์สินค้าไปยังกลุ่ม Facebook ได้อัตโนมัติ โดยใช้เทคโนโลยี AI ช่วยจัดการ`,
   },
   {
     q: 'ฉันสามารถเชื่อมต่อบัญชี Facebook ได้กี่บัญชี?',
@@ -162,7 +163,7 @@ export default function HelpPage() {
             </p>
             <div className="flex flex-wrap justify-center gap-4">
               <a
-                href="mailto:support@postdee.com"
+                href={`mailto:${siteConfig.contact.email}`}
                 className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors"
               >
                 <Mail className="w-5 h-5" />

@@ -4,6 +4,7 @@
  * Blog Page
  */
 
+import { siteConfig } from '@/src/config/site.config';
 import { MainLayout } from '@/src/presentation/components/layout/MainLayout';
 import { animated, useSpring } from '@react-spring/web';
 import { ArrowRight, Calendar, Clock } from 'lucide-react';
@@ -12,7 +13,7 @@ import Link from 'next/link';
 const posts = [
   {
     id: 1,
-    title: '10 เทคนิคเพิ่มยอดขายบน Facebook ด้วย POSTDEE',
+    title: `10 เทคนิคเพิ่มยอดขายบน Facebook ด้วย ${siteConfig.name}`,
     excerpt: 'เรียนรู้วิธีใช้ระบบโพสต์อัตโนมัติเพื่อเพิ่มยอดขายอย่างมีประสิทธิภาพ...',
     date: '8 ก.พ. 2026',
     readTime: '5 นาที',
@@ -22,7 +23,7 @@ const posts = [
   {
     id: 2,
     title: 'อัปเดตฟีเจอร์ใหม่: AI ช่วยเขียนโพสต์',
-    excerpt: 'ตอนนี้ POSTDEE มี AI ช่วยเขียนข้อความขายสินค้าให้คุณแล้ว...',
+    excerpt: `ตอนนี้ ${siteConfig.name} มี AI ช่วยเขียนข้อความขายสินค้าให้คุณแล้ว...`,
     date: '5 ก.พ. 2026',
     readTime: '3 นาที',
     category: 'อัปเดต',
@@ -40,7 +41,7 @@ const posts = [
   {
     id: 4,
     title: 'Case Study: ร้านค้าออนไลน์เพิ่มยอดขาย 300%',
-    excerpt: 'เรื่องราวความสำเร็จของลูกค้าที่ใช้ POSTDEE ในการโปรโมทสินค้า...',
+    excerpt: `เรื่องราวความสำเร็จของลูกค้าที่ใช้ ${siteConfig.name} ในการโปรโมทสินค้า...`,
     date: '25 ม.ค. 2026',
     readTime: '7 นาที',
     category: 'Case Study',

@@ -1,3 +1,4 @@
+import { siteConfig } from '@/src/config/site.config';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
@@ -33,7 +34,7 @@ interface AuthState {
 // Demo account credentials
 const DEMO_USER: User = {
   id: 'demo-user-001',
-  email: 'demo@postdee.com',
+  email: siteConfig.demo.email,
   name: 'Demo User',
   avatar: undefined,
   plan: 'monthly',
@@ -43,16 +44,16 @@ const DEMO_USER: User = {
 // Mock users for demo
 const MOCK_USERS: { email: string; password: string; user: User }[] = [
   {
-    email: 'demo@postdee.com',
-    password: 'demo1234',
+    email: siteConfig.demo.email,
+    password: siteConfig.demo.password,
     user: DEMO_USER,
   },
   {
-    email: 'admin@postdee.com',
-    password: 'admin1234',
+    email: siteConfig.demo.adminEmail,
+    password: siteConfig.demo.adminPassword,
     user: {
       id: 'admin-001',
-      email: 'admin@postdee.com',
+      email: siteConfig.demo.adminEmail,
       name: 'Admin User',
       plan: 'yearly',
       isDemo: false,
@@ -169,7 +170,7 @@ export const useAuthStore = create<AuthState>()(
       clearError: () => set({ error: null }),
     }),
     {
-      name: 'postdee-auth',
+      name: 'socialflow-auth',
       partialize: (state) => ({
         user: state.user,
         isAuthenticated: state.isAuthenticated,

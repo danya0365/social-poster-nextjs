@@ -4,6 +4,7 @@
  * Login Page
  */
 
+import { siteConfig } from '@/src/config/site.config';
 import { useAuthStore } from '@/src/stores/authStore';
 import { animated, useSpring } from '@react-spring/web';
 import { AlertCircle, Eye, EyeOff, LogIn, User, Zap } from 'lucide-react';
@@ -47,7 +48,7 @@ export default function LoginPage() {
               <Zap className="w-8 h-8 text-white" />
             </div>
             <span className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
-              POSTDEE
+              {siteConfig.name}
             </span>
           </Link>
         </div>
@@ -171,7 +172,7 @@ export default function LoginPage() {
         {/* Demo credentials hint */}
         <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl text-center">
           <p className="text-sm text-blue-700 dark:text-blue-300">
-            <strong>Demo:</strong> demo@postdee.com / demo1234
+            <strong>Demo:</strong> {siteConfig.demo.email} / {siteConfig.demo.password}
           </p>
         </div>
       </animated.div>

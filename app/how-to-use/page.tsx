@@ -4,6 +4,7 @@
  * How to Use Page
  */
 
+import { siteConfig } from '@/src/config/site.config';
 import { MainLayout } from '@/src/presentation/components/layout/MainLayout';
 import { animated, useSpring } from '@react-spring/web';
 import {
@@ -72,7 +73,7 @@ export default function HowToUsePage() {
             <animated.div style={headerSpring}>
               <Play className="w-16 h-16 mx-auto text-blue-600 mb-6" />
               <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-                วิธีใช้งาน POSTDEE
+                วิธีใช้งาน {siteConfig.name}
               </h1>
               <p className="text-xl text-gray-600 dark:text-gray-400">
                 เริ่มต้นใช้งานง่ายๆ ใน 7 ขั้นตอน
