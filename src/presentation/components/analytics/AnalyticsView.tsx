@@ -5,6 +5,8 @@
  * Main analytics dashboard page
  */
 
+import { AnalyticsViewModelData } from '@/src/application/repositories/IAnalyticsRepository';
+import { useAnalyticsPresenter } from '@/src/presentation/presenters/analytics/useAnalyticsPresenter';
 import { animated, useSpring } from '@react-spring/web';
 import {
     Eye,
@@ -17,12 +19,37 @@ import { BestTimeToPost } from './BestTimeToPost';
 import { EngagementChart } from './EngagementChart';
 import { PlatformComparison } from './PlatformComparison';
 
-export function AnalyticsView() {
+interface AnalyticsViewProps {
+  initialViewModel?: AnalyticsViewModelData;
+}
+
+export function AnalyticsView({ initialViewModel }: AnalyticsViewProps) {
+  const [state] = useAnalyticsPresenter(initialViewModel);
+  const { viewModel, loading, error } = state;
+
   const headerSpring = useSpring({
     from: { opacity: 0, y: -20 },
     to: { opacity: 1, y: 0 },
     config: { tension: 200, friction: 20 },
   });
+
+  if (loading && !viewModel) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (error && !viewModel) {
+    return (
+      <div className="p-4 bg-red-50 dark:bg-red-900/20 text-red-600 rounded-xl">
+        {error}
+      </div>
+    );
+  }
+
+  if (!viewModel) return null;
 
   return (
     <div className="space-y-6">
@@ -38,52 +65,58 @@ export function AnalyticsView() {
 
       {/* Stats cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <AnalyticsCard
-          title="การเข้าถึง"
-          value={158420}
-          change={15.3}
-          changeLabel="เทียบสัปดาห์ก่อน"
-          icon={Eye}
-          gradient="bg-gradient-to-r from-blue-500 to-cyan-500"
-          delay={0}
-        />
-        <AnalyticsCard
-          title="Engagement"
-          value={24890}
-          change={23.5}
-          changeLabel="เทียบสัปดาห์ก่อน"
-          icon={Heart}
-          gradient="bg-gradient-to-r from-pink-500 to-rose-500"
-          delay={100}
-        />
-        <AnalyticsCard
-          title="ความคิดเห็น"
-          value={3245}
-          change={8.2}
-          changeLabel="เทียบสัปดาห์ก่อน"
-          icon={MessageCircle}
-          gradient="bg-gradient-to-r from-purple-500 to-violet-500"
-          delay={200}
-        />
-        <AnalyticsCard
-          title="แชร์"
-          value={1876}
-          change={-3.1}
-          changeLabel="เทียบสัปดาห์ก่อน"
-          icon={Share2}
-          gradient="bg-gradient-to-r from-orange-500 to-amber-500"
-          delay={300}
-        />
+        {viewModel.summary.map((stat, index) => {
+          let Icon = Eye;
+          let gradient = "bg-gradient-to-r from-blue-500 to-cyan-500";
+          
+          if (stat.title.includes('Engagement')) {
+            Icon = Heart;
+            gradient = "bg-gradient-to-r from-pink-500 to-rose-500";
+          } else if (stat.title.includes('ความคิดเห็น')) {
+            Icon = MessageCircle;
+            gradient = "bg-gradient-to-r from-purple-500 to-violet-500";
+          } else if (stat.title.includes('แชร์')) {
+            Icon = Share2;
+            gradient = "bg-gradient-to-r from-orange-500 to-amber-500";
+          }
+
+          return (
+            <AnalyticsCard
+              key={stat.title}
+              title={stat.title}
+              value={stat.value}
+              change={stat.change}
+              changeLabel={stat.changeLabel}
+              icon={Icon}
+              gradient={gradient}
+              delay={index * 100}
+            />
+          );
+        })}
       </div>
 
       {/* Charts row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <EngagementChart />
-        <PlatformComparison />
+        <EngagementChart 
+          data={viewModel.engagementHistory.map(d => ({
+            date: d.date,
+            value: d.engagement,
+            label: new Date(d.date).toLocaleDateString('th-TH', { day: 'numeric', month: 'short' })
+          }))} 
+        />
+        <PlatformComparison 
+          data={viewModel.platformComparison.map(d => ({
+            platform: d.platform as any,
+            engagement: d.engagement,
+            posts: 0, // Not available in current domain model
+            reach: 0, // Not available in current domain model
+            growth: 0  // Not available in current domain model
+          }))} 
+        />
       </div>
 
       {/* Best time to post */}
-      <BestTimeToPost />
+      <BestTimeToPost data={viewModel.bestTimes} />
 
       {/* Top performing posts */}
       <div className="bg-white dark:bg-gray-900 rounded-2xl p-6 border border-gray-200 dark:border-gray-800">
@@ -91,11 +124,7 @@ export function AnalyticsView() {
           โพสต์ยอดนิยม
         </h3>
         <div className="space-y-4">
-          {[
-            { id: 1, content: '💰 โปรโมชั่นพิเศษ! ลด 50% ทุกชิ้น', engagement: 4500, reach: 18000 },
-            { id: 2, content: '🌟 สินค้าขายดี กลับมาอีกครั้ง!', engagement: 3200, reach: 15000 },
-            { id: 3, content: '📦 รีวิวจากลูกค้า สินค้าคุณภาพดี', engagement: 2800, reach: 12000 },
-          ].map((post, index) => (
+          {viewModel.topPosts.map((post, index) => (
             <div
               key={post.id}
               className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl"

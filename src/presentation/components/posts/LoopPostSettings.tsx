@@ -26,6 +26,7 @@ interface LoopConfig {
 
 interface LoopPostSettingsProps {
   onConfigChange?: (config: LoopConfig) => void;
+  onSave?: (config: LoopConfig) => void;
   initialConfig?: Partial<LoopConfig>;
 }
 
@@ -43,6 +44,7 @@ const dayLabels = ['อา.', 'จ.', 'อ.', 'พ.', 'ฤ.', 'ศ.', 'ส.'];
 
 export function LoopPostSettings({
   onConfigChange,
+  onSave,
   initialConfig = {},
 }: LoopPostSettingsProps) {
   const [config, setConfig] = useState<LoopConfig>({
@@ -232,6 +234,16 @@ export function LoopPostSettings({
               </div>
             </div>
           </div>
+
+          {/* Action Button */}
+          {onSave && (
+            <button
+              onClick={() => onSave(config)}
+              className="w-full mt-4 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold rounded-xl hover:shadow-lg transition-all"
+            >
+              บันทึกการตั้งค่า
+            </button>
+          )}
         </>
       )}
     </div>

@@ -15,6 +15,7 @@ interface TimeSlot {
 }
 
 interface BestTimeToPostProps {
+  data?: TimeSlot[];
   title?: string;
 }
 
@@ -56,7 +57,10 @@ const getScoreColor = (score: number) => {
   return 'bg-gray-200 dark:bg-gray-700';
 };
 
-export function BestTimeToPost({ title = 'เวลาที่ดีที่สุดในการโพสต์' }: BestTimeToPostProps) {
+export function BestTimeToPost({ 
+  data = heatmapData, 
+  title = 'เวลาที่ดีที่สุดในการโพสต์' 
+}: BestTimeToPostProps) {
   const headerSpring = useSpring({
     from: { opacity: 0, y: -10 },
     to: { opacity: 1, y: 0 },
@@ -67,8 +71,9 @@ export function BestTimeToPost({ title = 'เวลาที่ดีที่�
   const hours = [6, 8, 10, 12, 14, 16, 18, 20, 22];
 
   // Find best time
-  const bestSlot = heatmapData.reduce((best, current) =>
-    current.score > best.score ? current : best
+  const bestSlot = data.reduce((best, current) =>
+    current.score > best.score ? current : best,
+    data[0] || { day: '-', hour: 0, score: 0 }
   );
 
   return (
@@ -112,7 +117,7 @@ export function BestTimeToPost({ title = 'เวลาที่ดีที่�
                 {day}
               </div>
               {hours.map((hour) => {
-                const slot = heatmapData.find((s) => s.day === day && s.hour === hour);
+                const slot = data.find((s) => s.day === day && s.hour === hour);
                 const score = slot?.score || 0;
 
                 return (

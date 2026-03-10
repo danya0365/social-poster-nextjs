@@ -17,7 +17,19 @@ const features = [
   { icon: TrendingUp, text: 'เพิ่ม Engagement' },
 ];
 
-export function HeroSection() {
+interface HeroSectionProps {
+  title?: string;
+  subtitle?: string;
+  ctaText?: string;
+  ctaLink?: string;
+}
+
+export function HeroSection({
+  title = 'โพสต์ขายของ อัตโนมัติ 24 ชม.',
+  subtitle = 'ระบบ AI ช่วยโพสต์ขายของอัตโนมัติ วนลูปไม่มีหยุด ค้นหากลุ่มลูกค้าด้วย AI และ Auto Comment ให้ร้านคุณติดอันดับ',
+  ctaText = 'เริ่มใช้งานฟรี',
+  ctaLink = '/auth/register',
+}: HeroSectionProps) {
   const titleSpring = useSpring({
     from: { opacity: 0, y: 40 },
     to: { opacity: 1, y: 0 },
@@ -85,11 +97,11 @@ export function HeroSection() {
             style={titleSpring}
             className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-6"
           >
-            <span className="text-gray-900 dark:text-white">โพสต์ขายของ</span>
-            <br />
-            <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
-              อัตโนมัติ 24 ชม.
-            </span>
+            {title.includes('\n') || title.includes('<br') ? (
+               <span dangerouslySetInnerHTML={{ __html: title.replace('\n', '<br />') }} />
+            ) : (
+              <span className="text-gray-900 dark:text-white">{title}</span>
+            )}
           </animated.h1>
 
           {/* Subtitle */}
@@ -97,8 +109,7 @@ export function HeroSection() {
             style={subtitleSpring}
             className="text-lg sm:text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto mb-8"
           >
-            ระบบ AI ช่วยโพสต์ขายของอัตโนมัติ วนลูปไม่มีหยุด
-            ค้นหากลุ่มลูกค้าด้วย AI และ Auto Comment ให้ร้านคุณติดอันดับ
+            {subtitle}
           </animated.p>
 
           {/* Social platforms */}
@@ -117,8 +128,8 @@ export function HeroSection() {
             style={ctaSpring}
             className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12"
           >
-            <AnimatedButton variant="gradient" size="lg">
-              <span>เริ่มใช้งานฟรี</span>
+            <AnimatedButton variant="gradient" size="lg" onClick={() => window.location.href = ctaLink}>
+              <span>{ctaText}</span>
               <ArrowRight className="ml-2 w-5 h-5" />
             </AnimatedButton>
             

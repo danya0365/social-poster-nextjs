@@ -6,69 +6,31 @@
  */
 
 import { AnimatedButton } from '@/src/presentation/components/ui/AnimatedButton';
+import { AutoCommentViewModel } from '@/src/presentation/presenters/autocomment/AutoCommentPresenter';
+import { useAutoCommentPresenter } from '@/src/presentation/presenters/autocomment/useAutoCommentPresenter';
 import { animated, useSpring, useTrail } from '@react-spring/web';
 import {
-  AlertCircle,
-  Clock,
-  Edit3,
-  MessageCircle,
-  Plus,
-  Power,
-  Settings,
-  Sparkles,
-  Trash2,
-  X,
+    AlertCircle,
+    Clock,
+    Edit3,
+    MessageCircle,
+    Plus,
+    Power,
+    Settings,
+    Sparkles,
+    Trash2,
+    X,
 } from 'lucide-react';
 import { useState } from 'react';
 
-interface CommentTemplate {
-  id: string;
-  name: string;
-  messages: string[];
-  delay: number; // minutes
-  isActive: boolean;
-  usageCount: number;
+interface AutoCommentViewProps {
+  initialViewModel?: AutoCommentViewModel;
 }
 
-const mockTemplates: CommentTemplate[] = [
-  {
-    id: 'tpl-1',
-    name: 'ตอบลูกค้าใหม่',
-    messages: [
-      'ขอบคุณที่สนใจค่ะ ทักแชทมาได้เลยนะคะ 💕',
-      'สนใจสินค้าไหนคะ ทักมาสอบถามได้เลยค่ะ ✨',
-      'รายละเอียดสินค้าทักแชทมาได้เลยค่ะ 🛒',
-    ],
-    delay: 2,
-    isActive: true,
-    usageCount: 1245,
-  },
-  {
-    id: 'tpl-2',
-    name: 'ตอบเรื่องราคา',
-    messages: [
-      'ราคาตามโพสต์เลยค่ะ หรือทักแชทมาถามราคาพิเศษได้นะคะ 💰',
-      'มีส่วนลดพิเศษสำหรับลูกค้าใหม่ค่ะ ทักมาเลยนะคะ 🎁',
-    ],
-    delay: 1,
-    isActive: true,
-    usageCount: 890,
-  },
-  {
-    id: 'tpl-3',
-    name: 'ตอบเรื่องจัดส่ง',
-    messages: [
-      'จัดส่งทุกวันค่ะ ได้รับภายใน 1-3 วันเลยนะคะ 📦',
-      'ส่งฟรีทั่วไทยค่ะ สั่งวันนี้ ส่งพรุ่งนี้เลย 🚚',
-    ],
-    delay: 1,
-    isActive: false,
-    usageCount: 567,
-  },
-];
+export function AutoCommentView({ initialViewModel }: AutoCommentViewProps) {
+  const [state, actions] = useAutoCommentPresenter(initialViewModel);
+  const { viewModel, loading, error } = state;
 
-export function AutoCommentView() {
-  const [templates, setTemplates] = useState(mockTemplates);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [newTemplate, setNewTemplate] = useState({
@@ -83,17 +45,12 @@ export function AutoCommentView() {
     config: { tension: 200, friction: 20 },
   });
 
+  const templates = viewModel?.templates ?? [];
   const trail = useTrail(templates.length, {
     from: { opacity: 0, y: 20 },
     to: { opacity: 1, y: 0 },
     config: { tension: 200, friction: 20 },
   });
-
-  const toggleTemplate = (id: string) => {
-    setTemplates((prev) =>
-      prev.map((t) => (t.id === id ? { ...t, isActive: !t.isActive } : t))
-    );
-  };
 
   const handleAddMessage = () => {
     setNewTemplate(prev => ({
@@ -118,22 +75,35 @@ export function AutoCommentView() {
     }
   };
 
-  const handleSaveTemplate = () => {
+  const handleSaveTemplate = async () => {
     if (!newTemplate.name.trim() || !newTemplate.messages[0].trim()) return;
     
-    const template: CommentTemplate = {
-      id: `tpl-${Date.now()}`,
+    await actions.saveTemplate({
       name: newTemplate.name,
       messages: newTemplate.messages.filter(m => m.trim()),
       delay: newTemplate.delay,
       isActive: true,
-      usageCount: 0,
-    };
+    });
     
-    setTemplates(prev => [template, ...prev]);
     setNewTemplate({ name: '', messages: [''], delay: 2 });
     setIsAddModalOpen(false);
   };
+
+  const handleDeleteTemplate = async (id: string) => {
+    if (confirm('ยืนยันการลบรูปแบบนี้?')) {
+      await actions.deleteTemplate(id);
+    }
+  };
+
+  if (loading && !viewModel) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (!viewModel) return null;
 
   const activeCount = templates.filter((t) => t.isActive).length;
 
@@ -184,6 +154,12 @@ export function AutoCommentView() {
         </div>
       </div>
 
+      {error && (
+        <div className="p-4 bg-red-50 dark:bg-red-900/20 text-red-600 rounded-xl">
+          {error}
+        </div>
+      )}
+
       {/* Warning */}
       <div className="flex items-start gap-3 p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-xl border border-yellow-200 dark:border-yellow-800/50">
         <AlertCircle className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
@@ -231,11 +207,14 @@ export function AutoCommentView() {
                   <button className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
                     <Edit3 className="w-4 h-4 text-gray-400" />
                   </button>
-                  <button className="p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
+                  <button 
+                    onClick={() => handleDeleteTemplate(template.id)}
+                    className="p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                  >
                     <Trash2 className="w-4 h-4 text-red-400" />
                   </button>
                   <button
-                    onClick={() => toggleTemplate(template.id)}
+                    onClick={() => actions.toggleTemplate(template.id, template.isActive)}
                     className={`p-2 rounded-lg transition-colors ${
                       template.isActive
                         ? 'bg-green-100 dark:bg-green-900/30 text-green-600'
@@ -266,15 +245,15 @@ export function AutoCommentView() {
       {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-4 text-center">
-          <p className="text-3xl font-bold text-blue-600">2,702</p>
+          <p className="text-3xl font-bold text-blue-600">{viewModel.stats.todayReplies.toLocaleString()}</p>
           <p className="text-sm text-gray-500 dark:text-gray-400">คอมเมนต์ตอบแล้ววันนี้</p>
         </div>
         <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-4 text-center">
-          <p className="text-3xl font-bold text-green-600">98.5%</p>
+          <p className="text-3xl font-bold text-green-600">{viewModel.stats.successRate}%</p>
           <p className="text-sm text-gray-500 dark:text-gray-400">อัตราความสำเร็จ</p>
         </div>
         <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-4 text-center">
-          <p className="text-3xl font-bold text-purple-600">1.2 วิ</p>
+          <p className="text-3xl font-bold text-purple-600">{viewModel.stats.avgResponseTime} วิ</p>
           <p className="text-sm text-gray-500 dark:text-gray-400">เวลาตอบเฉลี่ย</p>
         </div>
       </div>
@@ -305,7 +284,7 @@ export function AutoCommentView() {
                   value={newTemplate.name}
                   onChange={(e) => setNewTemplate(prev => ({ ...prev, name: e.target.value }))}
                   placeholder="เช่น ตอบลูกค้าใหม่"
-                  className="w-full px-4 py-2 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white"
+                  className="w-full px-4 py-2 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                 />
               </div>
 
@@ -321,12 +300,12 @@ export function AutoCommentView() {
                         value={msg}
                         onChange={(e) => handleMessageChange(index, e.target.value)}
                         placeholder={`ข้อความที่ ${index + 1}`}
-                        className="flex-1 px-4 py-2 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white"
+                        className="flex-1 px-4 py-2 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                       />
                       {newTemplate.messages.length > 1 && (
                         <button
                           onClick={() => handleRemoveMessage(index)}
-                          className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg"
+                          className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -353,7 +332,7 @@ export function AutoCommentView() {
                   onChange={(e) => setNewTemplate(prev => ({ ...prev, delay: parseInt(e.target.value) || 1 }))}
                   min={1}
                   max={60}
-                  className="w-24 px-4 py-2 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white"
+                  className="w-24 px-4 py-2 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                 />
               </div>
             </div>
@@ -361,7 +340,7 @@ export function AutoCommentView() {
             <div className="flex justify-end gap-2 p-4 border-t border-gray-200 dark:border-gray-800">
               <button
                 onClick={() => setIsAddModalOpen(false)}
-                className="px-4 py-2 rounded-xl text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                className="px-4 py-2 rounded-xl text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
               >
                 ยกเลิก
               </button>
@@ -383,7 +362,7 @@ export function AutoCommentView() {
               </h2>
               <button
                 onClick={() => setIsSettingsOpen(false)}
-                className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
+                className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
               >
                 <X className="w-5 h-5 text-gray-500" />
               </button>
@@ -396,8 +375,11 @@ export function AutoCommentView() {
                   <p className="font-medium text-gray-900 dark:text-white">เปิดใช้งานอัตโนมัติ</p>
                   <p className="text-sm text-gray-500">ตอบกลับคอมเมนต์ใหม่อัตโนมัติ</p>
                 </div>
-                <button className="w-12 h-6 bg-green-500 rounded-full relative">
-                  <span className="absolute right-1 top-1 w-4 h-4 bg-white rounded-full" />
+                <button 
+                  onClick={() => actions.updateSettings({ isEnabled: !viewModel.settings.isEnabled })}
+                  className={`w-12 h-6 rounded-full relative transition-colors ${viewModel.settings.isEnabled ? 'bg-green-500' : 'bg-gray-400'}`}
+                >
+                  <span className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${viewModel.settings.isEnabled ? 'right-1' : 'left-1'}`} />
                 </button>
               </div>
 
@@ -407,10 +389,11 @@ export function AutoCommentView() {
                 <div className="flex items-center gap-2">
                   <input
                     type="number"
-                    defaultValue={2}
+                    value={viewModel.settings.initialDelay}
+                    onChange={(e) => actions.updateSettings({ initialDelay: parseInt(e.target.value) || 1 })}
                     min={1}
                     max={60}
-                    className="w-20 px-3 py-2 rounded-lg bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-900 dark:text-white"
+                    className="w-20 px-3 py-2 rounded-lg bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                   />
                   <span className="text-gray-500">นาที</span>
                 </div>
@@ -421,8 +404,10 @@ export function AutoCommentView() {
                 <p className="font-medium text-gray-900 dark:text-white mb-2">ไม่ตอบเมื่อมีคำเหล่านี้</p>
                 <input
                   type="text"
+                  value={viewModel.settings.skipKeywords.join(', ')}
+                  onChange={(e) => actions.updateSettings({ skipKeywords: e.target.value.split(',').map(s => s.trim()).filter(Boolean) })}
                   placeholder="เช่น ราคา, สั่งแล้ว, ขอบคุณ"
-                  className="w-full px-3 py-2 rounded-lg bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-900 dark:text-white"
+                  className="w-full px-3 py-2 rounded-lg bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                 />
                 <p className="text-xs text-gray-500 mt-1">คั่นด้วยเครื่องหมายจุลภาค</p>
               </div>
@@ -433,10 +418,11 @@ export function AutoCommentView() {
                 <div className="flex items-center gap-2">
                   <input
                     type="number"
-                    defaultValue={50}
+                    value={viewModel.settings.maxRepliesPerPost}
+                    onChange={(e) => actions.updateSettings({ maxRepliesPerPost: parseInt(e.target.value) || 1 })}
                     min={1}
                     max={500}
-                    className="w-20 px-3 py-2 rounded-lg bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-900 dark:text-white"
+                    className="w-20 px-3 py-2 rounded-lg bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                   />
                   <span className="text-gray-500">คอมเมนต์</span>
                 </div>
@@ -448,14 +434,16 @@ export function AutoCommentView() {
                 <div className="flex items-center gap-2">
                   <input
                     type="time"
-                    defaultValue="08:00"
-                    className="px-3 py-2 rounded-lg bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-900 dark:text-white"
+                    value={viewModel.settings.workHoursStart}
+                    onChange={(e) => actions.updateSettings({ workHoursStart: e.target.value })}
+                    className="px-3 py-2 rounded-lg bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                   />
                   <span className="text-gray-500">ถึง</span>
                   <input
                     type="time"
-                    defaultValue="22:00"
-                    className="px-3 py-2 rounded-lg bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-900 dark:text-white"
+                    value={viewModel.settings.workHoursEnd}
+                    onChange={(e) => actions.updateSettings({ workHoursEnd: e.target.value })}
+                    className="px-3 py-2 rounded-lg bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                   />
                 </div>
               </div>
@@ -464,13 +452,10 @@ export function AutoCommentView() {
             <div className="flex justify-end gap-2 p-4 border-t border-gray-200 dark:border-gray-800">
               <button
                 onClick={() => setIsSettingsOpen(false)}
-                className="px-4 py-2 rounded-xl text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                className="px-4 py-2 rounded-xl text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
               >
-                ยกเลิก
+                ปิด
               </button>
-              <AnimatedButton variant="gradient" onClick={() => setIsSettingsOpen(false)}>
-                บันทึก
-              </AnimatedButton>
             </div>
           </div>
         </div>

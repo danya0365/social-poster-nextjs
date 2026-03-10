@@ -5,6 +5,8 @@
  * Notification dropdown/modal
  */
 
+import { NotificationsViewModel } from '@/src/presentation/presenters/notifications/NotificationsPresenter';
+import { useNotificationsPresenter } from '@/src/presentation/presenters/notifications/useNotificationsPresenter';
 import { animated, useSpring, useTrail } from '@react-spring/web';
 import {
     AlertTriangle,
@@ -16,59 +18,10 @@ import {
     Trash2,
     X
 } from 'lucide-react';
-import { useState } from 'react';
 
-interface Notification {
-  id: string;
-  type: 'success' | 'error' | 'warning' | 'info';
-  title: string;
-  message: string;
-  time: string;
-  isRead: boolean;
+interface NotificationCenterProps {
+  initialViewModel?: NotificationsViewModel;
 }
-
-const mockNotifications: Notification[] = [
-  {
-    id: '1',
-    type: 'success',
-    title: 'โพสต์สำเร็จ',
-    message: 'โพสต์ "โปรโมชั่นพิเศษ! ลด 50%" ถูกเผยแพร่ไปยัง 3 กลุ่มแล้ว',
-    time: '2 นาทีที่แล้ว',
-    isRead: false,
-  },
-  {
-    id: '2',
-    type: 'success',
-    title: 'โพสต์สำเร็จ',
-    message: 'โพสต์ "สินค้าใหม่เข้าแล้ว!" ถูกเผยแพร่เรียบร้อย',
-    time: '15 นาทีที่แล้ว',
-    isRead: false,
-  },
-  {
-    id: '3',
-    type: 'error',
-    title: 'Token หมดอายุ',
-    message: 'บัญชี Instagram @shop_fashion ต้องเชื่อมต่อใหม่',
-    time: '1 ชั่วโมงที่แล้ว',
-    isRead: false,
-  },
-  {
-    id: '4',
-    type: 'warning',
-    title: 'โพสต์ตามกำหนดการ',
-    message: 'มีโพสต์ที่กำหนดไว้ในอีก 15 นาที',
-    time: '2 ชั่วโมงที่แล้ว',
-    isRead: true,
-  },
-  {
-    id: '5',
-    type: 'info',
-    title: 'รายงานประจำสัปดาห์',
-    message: 'Engagement เพิ่มขึ้น 23.5% จากสัปดาห์ก่อน',
-    time: 'เมื่อวาน',
-    isRead: true,
-  },
-];
 
 const typeConfig = {
   success: {
@@ -93,9 +46,9 @@ const typeConfig = {
   },
 };
 
-export function NotificationCenter() {
-  const [notifications, setNotifications] = useState(mockNotifications);
-  const [filter, setFilter] = useState<'all' | 'unread'>('all');
+export function NotificationCenter({ initialViewModel }: NotificationCenterProps) {
+  const [state, actions] = useNotificationsPresenter(initialViewModel);
+  const { notifications, loading, error, filter } = state;
 
   const headerSpring = useSpring({
     from: { opacity: 0, y: -20 },
@@ -103,11 +56,7 @@ export function NotificationCenter() {
     config: { tension: 200, friction: 20 },
   });
 
-  const filteredNotifications = notifications.filter(
-    (n) => filter === 'all' || !n.isRead
-  );
-
-  const trail = useTrail(filteredNotifications.length, {
+  const trail = useTrail(notifications.length, {
     from: { opacity: 0, x: -20 },
     to: { opacity: 1, x: 0 },
     config: { tension: 200, friction: 20 },
@@ -115,23 +64,13 @@ export function NotificationCenter() {
 
   const unreadCount = notifications.filter((n) => !n.isRead).length;
 
-  const markAsRead = (id: string) => {
-    setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, isRead: true } : n))
+  if (loading && notifications.length === 0) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
+      </div>
     );
-  };
-
-  const markAllAsRead = () => {
-    setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
-  };
-
-  const deleteNotification = (id: string) => {
-    setNotifications((prev) => prev.filter((n) => n.id !== id));
-  };
-
-  const clearAll = () => {
-    setNotifications([]);
-  };
+  }
 
   return (
     <div className="space-y-6">
@@ -148,14 +87,14 @@ export function NotificationCenter() {
 
         <div className="flex items-center gap-2">
           <button
-            onClick={markAllAsRead}
+            onClick={actions.markAllAsRead}
             className="p-2 rounded-xl border border-gray-200 dark:border-gray-800 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
             title="อ่านทั้งหมด"
           >
             <CheckCheck className="w-5 h-5 text-gray-600 dark:text-gray-400" />
           </button>
           <button
-            onClick={clearAll}
+            onClick={actions.clearAll}
             className="p-2 rounded-xl border border-gray-200 dark:border-gray-800 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
             title="ลบทั้งหมด"
           >
@@ -167,30 +106,36 @@ export function NotificationCenter() {
       {/* Filter tabs */}
       <div className="flex gap-2">
         <button
-          onClick={() => setFilter('all')}
+          onClick={() => actions.setFilter('all')}
           className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors ${
             filter === 'all'
               ? 'bg-blue-500 text-white'
               : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400'
           }`}
         >
-          ทั้งหมด ({notifications.length})
+          ทั้งหมด
         </button>
         <button
-          onClick={() => setFilter('unread')}
+          onClick={() => actions.setFilter('unread')}
           className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors ${
             filter === 'unread'
               ? 'bg-blue-500 text-white'
               : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400'
           }`}
         >
-          ยังไม่ได้อ่าน ({unreadCount})
+          ยังไม่ได้อ่าน
         </button>
       </div>
 
+      {error && (
+        <div className="p-4 bg-red-50 dark:bg-red-900/20 text-red-600 rounded-xl">
+          {error}
+        </div>
+      )}
+
       {/* Notifications list */}
       <div className="space-y-3">
-        {filteredNotifications.length === 0 ? (
+        {notifications.length === 0 ? (
           <div className="text-center py-12 bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800">
             <Bell className="w-12 h-12 text-gray-300 dark:text-gray-700 mx-auto mb-4" />
             <p className="text-gray-500 dark:text-gray-400">
@@ -199,7 +144,7 @@ export function NotificationCenter() {
           </div>
         ) : (
           trail.map((spring, index) => {
-            const notification = filteredNotifications[index];
+            const notification = notifications[index];
             const config = typeConfig[notification.type];
             const Icon = config.icon;
 
@@ -240,7 +185,7 @@ export function NotificationCenter() {
                       <div className="flex items-center gap-1">
                         {!notification.isRead && (
                           <button
-                            onClick={() => markAsRead(notification.id)}
+                            onClick={() => actions.markAsRead(notification.id)}
                             className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                             title="อ่านแล้ว"
                           >
@@ -248,7 +193,7 @@ export function NotificationCenter() {
                           </button>
                         )}
                         <button
-                          onClick={() => deleteNotification(notification.id)}
+                          onClick={() => actions.deleteNotification(notification.id)}
                           className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
                           title="ลบ"
                         >

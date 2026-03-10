@@ -27,7 +27,7 @@ interface SocialAccountCardProps {
     name: string;
     username: string;
     avatar?: string;
-    status: 'connected' | 'expired' | 'error';
+    status: 'connected' | 'expired' | 'disconnected' | 'error';
     followers?: number;
     posts?: number;
     lastSync?: string;
@@ -50,6 +50,11 @@ const statusConfig = {
   error: {
     label: 'เกิดข้อผิดพลาด',
     color: 'text-red-500 bg-red-100 dark:bg-red-900/30',
+    icon: AlertCircle,
+  },
+  disconnected: {
+    label: 'ไม่ได้เชื่อมต่อ',
+    color: 'text-gray-500 bg-gray-100 dark:bg-gray-700/30',
     icon: AlertCircle,
   },
 };

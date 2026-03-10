@@ -10,6 +10,7 @@ import { animated, useTrail } from '@react-spring/web';
 import {
     BarChart,
     Clock,
+    LucideIcon,
     MessageSquare,
     RefreshCw,
     Search,
@@ -18,6 +19,29 @@ import {
     Users,
     Zap
 } from 'lucide-react';
+
+const iconMap: Record<string, LucideIcon> = {
+  Clock,
+  RefreshCw,
+  Search,
+  MessageSquare,
+  Users,
+  Share2,
+  Zap,
+  Shield,
+  BarChart,
+};
+
+interface FeatureItem {
+  id: string;
+  title: string;
+  description: string;
+  iconName: string;
+}
+
+interface FeaturesSectionProps {
+  features?: FeatureItem[];
+}
 
 const features = [
   {
@@ -70,8 +94,15 @@ const stats = [
   { value: '26', unit: '฿/วัน', label: 'ราคาเริ่มต้น' },
 ];
 
-export function FeaturesSection() {
-  const trail = useTrail(features.length, {
+export function FeaturesSection({ features: initialFeatures }: FeaturesSectionProps) {
+  const displayFeatures = initialFeatures?.map(f => ({
+    ...f,
+    icon: iconMap[f.iconName] || Zap,
+    gradient: 'from-blue-500 to-blue-600', // Default gradients for now
+    bgGradient: 'from-blue-500/10 to-blue-600/5',
+  })) || features;
+
+  const trail = useTrail(displayFeatures.length, {
     from: { opacity: 0, y: 30 },
     to: { opacity: 1, y: 0 },
     config: { tension: 200, friction: 20 },
@@ -121,13 +152,13 @@ export function FeaturesSection() {
         {/* Feature cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {trail.map((spring, index) => {
-            const feature = features[index];
+            const feature = displayFeatures[index];
             const Icon = feature.icon;
             return (
               <animated.div key={index} style={spring}>
                 <AnimatedCard variant="glass" className="h-full">
-                  <div className={`inline-flex p-3 rounded-xl bg-gradient-to-br ${feature.bgGradient} mb-4`}>
-                    <div className={`p-2 rounded-lg bg-gradient-to-br ${feature.gradient}`}>
+                  <div className={`inline-flex p-3 rounded-xl bg-gradient-to-br ${feature.bgGradient || 'from-blue-500/10 to-blue-600/5'} mb-4`}>
+                    <div className={`p-2 rounded-lg bg-gradient-to-br ${feature.gradient || 'from-blue-500 to-blue-600'}`}>
                       <Icon className="w-6 h-6 text-white" />
                     </div>
                   </div>

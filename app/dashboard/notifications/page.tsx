@@ -1,7 +1,12 @@
-'use client';
-
 import { NotificationCenter } from '@/src/presentation/components/notifications/NotificationCenter';
+import { createServerNotificationsPresenter } from '@/src/presentation/presenters/notifications/NotificationsPresenterServerFactory';
 
-export default function NotificationsPage() {
-  return <NotificationCenter />;
+/**
+ * Notifications Page - Server Component
+ */
+export default async function NotificationsPage() {
+  const presenter = createServerNotificationsPresenter();
+  const viewModel = await presenter.getViewModel();
+
+  return <NotificationCenter initialViewModel={viewModel} />;
 }

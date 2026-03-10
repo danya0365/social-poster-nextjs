@@ -7,13 +7,14 @@
 
 import { siteConfig } from '@/src/config/site.config';
 import { AnimatedButton } from '@/src/presentation/components/ui/AnimatedButton';
+import { SettingsViewModel } from '@/src/presentation/presenters/settings/SettingsPresenter';
+import { useSettingsPresenter } from '@/src/presentation/presenters/settings/useSettingsPresenter';
 import { animated, useSpring } from '@react-spring/web';
 import {
     Bell,
     Clock,
     CreditCard,
     Palette,
-    Save,
     Shield,
     User
 } from 'lucide-react';
@@ -36,9 +37,15 @@ const settingsSections: SettingsSection[] = [
   { id: 'appearance', label: 'ธีมและภาษา', icon: Palette, description: 'ปรับแต่งการแสดงผล' },
 ];
 
-export function SettingsView() {
+interface SettingsViewProps {
+  initialViewModel?: SettingsViewModel;
+}
+
+export function SettingsView({ initialViewModel }: SettingsViewProps) {
+  const [state, actions] = useSettingsPresenter(initialViewModel);
+  const { settings, loading, error, saving } = state;
+
   const [activeTab, setActiveTab] = useState<SettingsTab>('profile');
-  const [isSaving, setIsSaving] = useState(false);
 
   const headerSpring = useSpring({
     from: { opacity: 0, y: -20 },
@@ -46,11 +53,15 @@ export function SettingsView() {
     config: { tension: 200, friction: 20 },
   });
 
-  const handleSave = async () => {
-    setIsSaving(true);
-    await new Promise((r) => setTimeout(r, 1000));
-    setIsSaving(false);
-  };
+  if (loading && !settings) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (!settings) return null;
 
   return (
     <div className="space-y-6">
@@ -63,6 +74,12 @@ export function SettingsView() {
           จัดการบัญชีและการตั้งค่าทั้งหมด
         </p>
       </animated.div>
+
+      {error && (
+        <div className="p-4 bg-red-50 dark:bg-red-900/20 text-red-600 rounded-xl">
+          {error}
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Sidebar */}
@@ -92,43 +109,41 @@ export function SettingsView() {
 
         {/* Content */}
         <div className="lg:col-span-3 space-y-6">
-          {activeTab === 'profile' && <ProfileSettings />}
-          {activeTab === 'notifications' && <NotificationSettings />}
-          {activeTab === 'billing' && <BillingSettings />}
+          {activeTab === 'profile' && <ProfileSettings profile={settings.profile} onUpdate={actions.updateProfile} />}
+          {activeTab === 'notifications' && <NotificationSettings initialSettings={settings.notifications} onUpdate={actions.updateNotifications} />}
+          {activeTab === 'billing' && <BillingSettings billingInfo={settings.billing} />}
           {activeTab === 'security' && <SecuritySettings />}
-          {activeTab === 'appearance' && <AppearanceSettings />}
+          {activeTab === 'appearance' && <AppearanceSettings initialAppearance={settings.appearance} onUpdate={actions.updateAppearance} />}
 
-          {/* Save button */}
-          <div className="flex justify-end">
-            <AnimatedButton
-              variant="gradient"
-              onClick={handleSave}
-              disabled={isSaving}
-            >
-              {isSaving ? 'กำลังบันทึก...' : (
-                <>
-                  <Save className="w-4 h-4 mr-1" />
-                  บันทึกการเปลี่ยนแปลง
-                </>
-              )}
-            </AnimatedButton>
-          </div>
+          {/* Status Message */}
+          {saving && (
+            <div className="flex justify-end text-sm text-blue-600 animate-pulse">
+              กำลังบันทึก...
+            </div>
+          )}
         </div>
       </div>
     </div>
   );
 }
 
-function ProfileSettings() {
+function ProfileSettings({ profile, onUpdate }: { profile: any, onUpdate: any }) {
+  const [data, setData] = useState(profile);
+
   return (
     <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-6">
-      <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-        ข้อมูลโปรไฟล์
-      </h2>
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+          ข้อมูลโปรไฟล์
+        </h2>
+        <AnimatedButton variant="primary" size="sm" onClick={() => onUpdate(data)}>
+          บันทึกโปรไฟล์
+        </AnimatedButton>
+      </div>
 
       <div className="flex items-center gap-4 mb-6">
         <div className="w-20 h-20 rounded-2xl bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center text-white text-2xl font-bold">
-          P
+          {data.firstName.charAt(0)}
         </div>
         <div>
           <button className="text-sm font-medium text-blue-600 hover:underline">
@@ -145,7 +160,8 @@ function ProfileSettings() {
           </label>
           <input
             type="text"
-            defaultValue={siteConfig.name}
+            value={data.firstName}
+            onChange={(e) => setData({ ...data, firstName: e.target.value })}
             className="w-full px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
           />
         </div>
@@ -155,7 +171,8 @@ function ProfileSettings() {
           </label>
           <input
             type="text"
-            defaultValue="Admin"
+            value={data.lastName}
+            onChange={(e) => setData({ ...data, lastName: e.target.value })}
             className="w-full px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
           />
         </div>
@@ -165,7 +182,8 @@ function ProfileSettings() {
           </label>
           <input
             type="email"
-            defaultValue={siteConfig.demo.adminEmail}
+            value={data.email}
+            onChange={(e) => setData({ ...data, email: e.target.value })}
             className="w-full px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
           />
         </div>
@@ -175,7 +193,8 @@ function ProfileSettings() {
           </label>
           <input
             type="tel"
-            defaultValue="081-234-5678"
+            value={data.phone}
+            onChange={(e) => setData({ ...data, phone: e.target.value })}
             className="w-full px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
           />
         </div>
@@ -184,19 +203,13 @@ function ProfileSettings() {
   );
 }
 
-function NotificationSettings() {
-  const [settings, setSettings] = useState({
-    postSuccess: true,
-    postFailed: true,
-    scheduleReminder: true,
-    weeklyReport: true,
-    newFeatures: false,
-    emailNotify: true,
-    lineNotify: false,
-  });
+function NotificationSettings({ initialSettings, onUpdate }: { initialSettings: any, onUpdate: any }) {
+  const [settings, setSettings] = useState(initialSettings);
 
-  const toggleSetting = (key: keyof typeof settings) => {
-    setSettings((prev) => ({ ...prev, [key]: !prev[key] }));
+  const toggleSetting = async (key: string) => {
+    const updated = { ...settings, [key]: !settings[key] };
+    setSettings(updated);
+    await onUpdate(updated);
   };
 
   return (
@@ -295,7 +308,7 @@ function ToggleItem({
   );
 }
 
-function BillingSettings() {
+function BillingSettings({ billingInfo }: { billingInfo: any }) {
   return (
     <div className="space-y-6">
       {/* Current plan */}
@@ -303,11 +316,11 @@ function BillingSettings() {
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm opacity-80">แพ็กเกจปัจจุบัน</p>
-            <h2 className="text-2xl font-bold mt-1">{siteConfig.name} Pro</h2>
-            <p className="text-sm opacity-80 mt-2">หมดอายุ: 28 ก.พ. 2026</p>
+            <h2 className="text-2xl font-bold mt-1">{siteConfig.name} {billingInfo.currentPlan}</h2>
+            <p className="text-sm opacity-80 mt-2">หมดอายุ: {billingInfo.expiryDate}</p>
           </div>
           <div className="text-right">
-            <p className="text-3xl font-bold">799</p>
+            <p className="text-3xl font-bold">{billingInfo.monthlyPrice}</p>
             <p className="text-sm opacity-80">บาท/เดือน</p>
           </div>
         </div>
@@ -324,11 +337,11 @@ function BillingSettings() {
         <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-xl">
           <div className="flex items-center gap-3">
             <div className="w-12 h-8 bg-gradient-to-r from-blue-600 to-blue-400 rounded flex items-center justify-center text-white text-xs font-bold">
-              VISA
+              {billingInfo.paymentMethod.type}
             </div>
             <div>
-              <p className="font-medium text-gray-900 dark:text-white">•••• •••• •••• 4242</p>
-              <p className="text-sm text-gray-500">หมดอายุ 12/27</p>
+              <p className="font-medium text-gray-900 dark:text-white">•••• •••• •••• {billingInfo.paymentMethod.last4}</p>
+              <p className="text-sm text-gray-500">หมดอายุ {billingInfo.paymentMethod.expiry}</p>
             </div>
           </div>
           <button className="text-sm text-blue-600 hover:underline">แก้ไข</button>
@@ -341,11 +354,7 @@ function BillingSettings() {
           ประวัติการชำระเงิน
         </h2>
         <div className="space-y-3">
-          {[
-            { date: '1 ก.พ. 2026', amount: '799', status: 'สำเร็จ' },
-            { date: '1 ม.ค. 2026', amount: '799', status: 'สำเร็จ' },
-            { date: '1 ธ.ค. 2025', amount: '799', status: 'สำเร็จ' },
-          ].map((payment, i) => (
+          {billingInfo.paymentHistory.map((payment: any, i: number) => (
             <div key={i} className="flex items-center justify-between py-3 border-b border-gray-100 dark:border-gray-800 last:border-0">
               <div>
                 <p className="font-medium text-gray-900 dark:text-white">{payment.date}</p>
@@ -388,6 +397,9 @@ function SecuritySettings() {
               className="w-full px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
             />
           </div>
+          <div className="mt-4">
+            <AnimatedButton variant="primary" size="sm">เปลี่ยนรหัสผ่าน</AnimatedButton>
+          </div>
         </div>
 
         {/* Two-factor auth */}
@@ -409,9 +421,20 @@ function SecuritySettings() {
   );
 }
 
-function AppearanceSettings() {
-  const [theme, setTheme] = useState<'light' | 'dark' | 'system'>('system');
-  const [language, setLanguage] = useState('th');
+function AppearanceSettings({ initialAppearance, onUpdate }: { initialAppearance: any, onUpdate: any }) {
+  const [appearance, setAppearance] = useState(initialAppearance);
+
+  const updateTheme = async (theme: string) => {
+    const updated = { ...appearance, theme };
+    setAppearance(updated);
+    await onUpdate(updated);
+  };
+
+  const updateLanguage = async (language: string) => {
+    const updated = { ...appearance, language };
+    setAppearance(updated);
+    await onUpdate(updated);
+  };
 
   return (
     <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-6">
@@ -427,9 +450,9 @@ function AppearanceSettings() {
             {(['light', 'dark', 'system'] as const).map((t) => (
               <button
                 key={t}
-                onClick={() => setTheme(t)}
+                onClick={() => updateTheme(t)}
                 className={`p-4 rounded-xl border-2 transition-all ${
-                  theme === t
+                  appearance.theme === t
                     ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
                     : 'border-gray-200 dark:border-gray-700'
                 }`}
@@ -450,9 +473,9 @@ function AppearanceSettings() {
         <div>
           <h3 className="font-medium text-gray-900 dark:text-white mb-3">ภาษา</h3>
           <select
-            value={language}
-            onChange={(e) => setLanguage(e.target.value)}
-            className="w-full px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+            value={appearance.language}
+            onChange={(e) => updateLanguage(e.target.value)}
+            className="w-full px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20"
           >
             <option value="th">ไทย</option>
             <option value="en">English</option>
@@ -464,7 +487,7 @@ function AppearanceSettings() {
           <h3 className="font-medium text-gray-900 dark:text-white mb-3">เขตเวลา</h3>
           <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
             <Clock className="w-5 h-5" />
-            <span>Asia/Bangkok (GMT+7)</span>
+            <span>{appearance.timezone}</span>
           </div>
         </div>
       </div>

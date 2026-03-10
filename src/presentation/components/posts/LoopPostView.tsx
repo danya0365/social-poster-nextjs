@@ -6,6 +6,8 @@
  */
 
 import { AnimatedButton } from '@/src/presentation/components/ui/AnimatedButton';
+import { LoopPostViewModel } from '@/src/presentation/presenters/looppost/LoopPostPresenter';
+import { useLoopPostPresenter } from '@/src/presentation/presenters/looppost/useLoopPostPresenter';
 import { animated, useSpring } from '@react-spring/web';
 import {
     Activity,
@@ -19,56 +21,14 @@ import { useState } from 'react';
 import { AIContentGenerator } from './AIContentGenerator';
 import { LoopPostSettings } from './LoopPostSettings';
 
-interface LoopPost {
-  id: string;
-  content: string;
-  status: 'active' | 'paused' | 'completed';
-  interval: number;
-  intervalUnit: 'hours' | 'days';
-  totalPosts: number;
-  postsCompleted: number;
-  nextPostTime: string;
-  createdAt: string;
+interface LoopPostViewProps {
+  initialViewModel?: LoopPostViewModel;
 }
 
-const mockLoopPosts: LoopPost[] = [
-  {
-    id: '1',
-    content: '🔥 โปรแรง! ลดสูงสุด 50% เฉพาะวันนี้!',
-    status: 'active',
-    interval: 4,
-    intervalUnit: 'hours',
-    totalPosts: 10,
-    postsCompleted: 6,
-    nextPostTime: '14:30',
-    createdAt: '2026-02-08',
-  },
-  {
-    id: '2',
-    content: '✨ สินค้าใหม่เข้าแล้ว! คุณภาพเกินราคา',
-    status: 'active',
-    interval: 6,
-    intervalUnit: 'hours',
-    totalPosts: 8,
-    postsCompleted: 3,
-    nextPostTime: '16:00',
-    createdAt: '2026-02-07',
-  },
-  {
-    id: '3',
-    content: '🎁 โปรพิเศษสำหรับลูกค้าใหม่! รับส่วนลด 20%',
-    status: 'paused',
-    interval: 1,
-    intervalUnit: 'days',
-    totalPosts: 7,
-    postsCompleted: 7,
-    nextPostTime: '-',
-    createdAt: '2026-02-05',
-  },
-];
+export function LoopPostView({ initialViewModel }: LoopPostViewProps) {
+  const [state, actions] = useLoopPostPresenter(initialViewModel);
+  const { loopPosts, loading, error } = state;
 
-export function LoopPostView() {
-  const [loopPosts, setLoopPosts] = useState(mockLoopPosts);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [generatedContent, setGeneratedContent] = useState('');
 
@@ -78,21 +38,16 @@ export function LoopPostView() {
     config: { tension: 200, friction: 20 },
   });
 
-  const toggleStatus = (id: string) => {
-    setLoopPosts((prev) =>
-      prev.map((post) =>
-        post.id === id
-          ? {
-              ...post,
-              status: post.status === 'active' ? 'paused' : 'active',
-            }
-          : post
-      )
-    );
-  };
-
   const activeCount = loopPosts.filter((p) => p.status === 'active').length;
   const totalCompleted = loopPosts.reduce((sum, p) => sum + p.postsCompleted, 0);
+
+  if (loading && loopPosts.length === 0) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -115,6 +70,12 @@ export function LoopPostView() {
           สร้างลูปโพสต์ใหม่
         </AnimatedButton>
       </animated.div>
+
+      {error && (
+        <div className="p-4 bg-red-50 dark:bg-red-900/20 text-red-600 rounded-xl">
+          {error}
+        </div>
+      )}
 
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -168,71 +129,78 @@ export function LoopPostView() {
             ลูปโพสต์ที่ตั้งไว้
           </h2>
 
-          {loopPosts.map((post) => (
-            <div
-              key={post.id}
-              className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-4"
-            >
-              <div className="flex items-start justify-between mb-3">
-                <p className="text-gray-900 dark:text-white line-clamp-2">
-                  {post.content}
-                </p>
-                <button
-                  onClick={() => toggleStatus(post.id)}
-                  className={`p-2 rounded-xl transition-colors ${
-                    post.status === 'active'
-                      ? 'bg-green-100 dark:bg-green-900/30 text-green-600'
-                      : 'bg-gray-100 dark:bg-gray-800 text-gray-400'
-                  }`}
-                >
-                  {post.status === 'active' ? (
-                    <Pause className="w-4 h-4" />
-                  ) : (
-                    <Play className="w-4 h-4" />
-                  )}
-                </button>
-              </div>
+          {loopPosts.length === 0 ? (
+            <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-8 text-center">
+              <Repeat className="w-12 h-12 text-gray-300 dark:text-gray-700 mx-auto mb-3" />
+              <p className="text-gray-500 dark:text-gray-400">ยังไม่มีลูปโพสต์ที่ตั้งไว้</p>
+            </div>
+          ) : (
+            loopPosts.map((post) => (
+              <div
+                key={post.id}
+                className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-4"
+              >
+                <div className="flex items-start justify-between mb-3">
+                  <p className="text-gray-900 dark:text-white line-clamp-2">
+                    {post.content}
+                  </p>
+                  <button
+                    onClick={() => actions.toggleStatus(post.id, post.status)}
+                    className={`p-2 rounded-xl transition-colors ${
+                      post.status === 'active'
+                        ? 'bg-green-100 dark:bg-green-900/30 text-green-600'
+                        : 'bg-gray-100 dark:bg-gray-800 text-gray-400'
+                    }`}
+                  >
+                    {post.status === 'active' ? (
+                      <Pause className="w-4 h-4" />
+                    ) : (
+                      <Play className="w-4 h-4" />
+                    )}
+                  </button>
+                </div>
 
-              {/* Progress bar */}
-              <div className="mb-3">
-                <div className="flex justify-between text-sm text-gray-500 mb-1">
-                  <span>ความคืบหน้า</span>
-                  <span>
-                    {post.postsCompleted}/{post.totalPosts}
+                {/* Progress bar */}
+                <div className="mb-3">
+                  <div className="flex justify-between text-sm text-gray-500 mb-1">
+                    <span>ความคืบหน้า</span>
+                    <span>
+                      {post.postsCompleted}/{post.totalPosts}
+                    </span>
+                  </div>
+                  <div className="h-2 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full transition-all"
+                      style={{
+                        width: `${(post.postsCompleted / post.totalPosts) * 100}%`,
+                      }}
+                    />
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+                  <span className="flex items-center gap-1">
+                    <Repeat className="w-4 h-4" />
+                    ทุก {post.interval}{' '}
+                    {post.intervalUnit === 'hours' ? 'ชม.' : 'วัน'}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Clock className="w-4 h-4" />
+                    ถัดไป: {post.nextPostTime}
+                  </span>
+                  <span
+                    className={`px-2 py-0.5 rounded-full text-xs ${
+                      post.status === 'active'
+                        ? 'bg-green-100 dark:bg-green-900/30 text-green-600'
+                        : 'bg-gray-100 dark:bg-gray-800 text-gray-500'
+                    }`}
+                  >
+                    {post.status === 'active' ? 'กำลังทำงาน' : post.status === 'completed' ? 'เสร็จสิ้น' : 'หยุดชั่วคราว'}
                   </span>
                 </div>
-                <div className="h-2 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full transition-all"
-                    style={{
-                      width: `${(post.postsCompleted / post.totalPosts) * 100}%`,
-                    }}
-                  />
-                </div>
               </div>
-
-              <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
-                <span className="flex items-center gap-1">
-                  <Repeat className="w-4 h-4" />
-                  ทุก {post.interval}{' '}
-                  {post.intervalUnit === 'hours' ? 'ชม.' : 'วัน'}
-                </span>
-                <span className="flex items-center gap-1">
-                  <Clock className="w-4 h-4" />
-                  ถัดไป: {post.nextPostTime}
-                </span>
-                <span
-                  className={`px-2 py-0.5 rounded-full text-xs ${
-                    post.status === 'active'
-                      ? 'bg-green-100 dark:bg-green-900/30 text-green-600'
-                      : 'bg-gray-100 dark:bg-gray-800 text-gray-500'
-                  }`}
-                >
-                  {post.status === 'active' ? 'กำลังทำงาน' : 'หยุดชั่วคราว'}
-                </span>
-              </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
 
         {/* AI Content Generator */}
@@ -245,7 +213,16 @@ export function LoopPostView() {
           />
 
           {/* Loop Settings Preview */}
-          <LoopPostSettings />
+          <LoopPostSettings onSave={(settings) => {
+            if (generatedContent) {
+              actions.createLoopPost({
+                content: generatedContent,
+                ...settings,
+                status: 'active'
+              });
+              setShowCreateModal(false);
+            }
+          }} />
         </div>
       </div>
     </div>

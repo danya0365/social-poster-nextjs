@@ -1,7 +1,12 @@
-'use client';
-
 import { LoopPostView } from '@/src/presentation/components/posts/LoopPostView';
+import { createServerLoopPostPresenter } from '@/src/presentation/presenters/looppost/LoopPostPresenterServerFactory';
 
-export default function LoopPostPage() {
-  return <LoopPostView />;
+/**
+ * Loop-Post Page - Server Component
+ */
+export default async function LoopPostPage() {
+  const presenter = createServerLoopPostPresenter();
+  const viewModel = await presenter.getViewModel();
+
+  return <LoopPostView initialViewModel={viewModel} />;
 }

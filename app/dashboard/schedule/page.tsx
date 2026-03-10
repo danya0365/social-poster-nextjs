@@ -1,7 +1,12 @@
-'use client';
-
 import { ScheduleView } from '@/src/presentation/components/schedule/ScheduleView';
+import { createServerSchedulePresenter } from '@/src/presentation/presenters/schedule/SchedulePresenterServerFactory';
 
-export default function SchedulePage() {
-  return <ScheduleView />;
+/**
+ * Schedule Page - Server Component
+ */
+export default async function SchedulePage() {
+  const presenter = createServerSchedulePresenter();
+  const viewModel = await presenter.getViewModel();
+
+  return <ScheduleView initialViewModel={viewModel} />;
 }

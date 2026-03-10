@@ -24,7 +24,7 @@ interface GroupCardProps {
     id: string;
     name: string;
     platform: 'facebook' | 'instagram' | 'twitter';
-    type: 'group' | 'page' | 'profile';
+    type: 'group' | 'page' | 'profile' | 'community';
     members?: number;
     autoPost: boolean;
     autoComment: boolean;
@@ -58,6 +58,7 @@ const typeLabels = {
   group: 'กลุ่ม',
   page: 'เพจ',
   profile: 'โปรไฟล์',
+  community: 'ชุมชน',
 };
 
 export function GroupCard({ group, onEdit, onDelete, onToggleAutoPost }: GroupCardProps) {

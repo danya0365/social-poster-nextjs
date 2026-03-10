@@ -1,7 +1,7 @@
 import { eq, inArray } from 'drizzle-orm';
-import { IRolePermissionRepository, Permission, Role } from '../../application/repositories/IRolePermissionRepository';
-import { db } from '../database/client';
-import { permissions, profilePermissions, rolePermissions, roles } from '../database/schema';
+import { IRolePermissionRepository, Permission, Role } from '../../../application/repositories/IRolePermissionRepository';
+import { db } from '../../database/client';
+import { permissions, profilePermissions, rolePermissions, roles } from '../../database/schema';
 
 export class DrizzleRolePermissionRepository implements IRolePermissionRepository {
   async getPermissionsForProfile(profileId: string, roleId: string): Promise<Permission[]> {

@@ -6,6 +6,8 @@
  */
 
 import { AnimatedButton } from '@/src/presentation/components/ui/AnimatedButton';
+import { PostsViewModel } from '@/src/presentation/presenters/posts/PostsPresenter';
+import { usePostsPresenter } from '@/src/presentation/presenters/posts/usePostsPresenter';
 import { animated, useSpring } from '@react-spring/web';
 import {
     AlertCircle,
@@ -21,8 +23,9 @@ import { useState } from 'react';
 import { PostCard } from './PostCard';
 import { PostComposer } from './PostComposer';
 
-type PostStatus = 'all' | 'draft' | 'scheduled' | 'published' | 'failed';
-type ViewMode = 'grid' | 'list';
+interface PostsViewProps {
+  initialViewModel?: PostsViewModel;
+}
 
 const statusFilters = [
   { id: 'all', label: 'ทั้งหมด', icon: Grid3X3 },
@@ -32,56 +35,8 @@ const statusFilters = [
   { id: 'failed', label: 'ผิดพลาด', icon: AlertCircle },
 ] as const;
 
-// Mock posts data
-const mockPosts = [
-  {
-    id: 'post-1',
-    content: '🔥 สินค้าใหม่มาแล้ว! เสื้อผ้าแฟชั่นคุณภาพดี ราคาถูก สั่งได้เลยค่ะ #แฟชั่น #ขายของออนไลน์ #ขายของinstagram',
-    platforms: ['facebook', 'instagram'] as ('facebook' | 'instagram' | 'twitter')[],
-    status: 'published' as const,
-    publishedAt: '2026-02-08T10:00:00.000Z',
-    engagement: { likes: 150, comments: 23, shares: 12 },
-  },
-  {
-    id: 'post-2',
-    content: '💰 โปรโมชั่นพิเศษ! ลด 50% ทุกชิ้น วันนี้วันเดียวเท่านั้น รีบสั่งก่อนหมด! ไม่ซื้อถือว่าพลาด 🛒',
-    platforms: ['facebook'] as ('facebook' | 'instagram' | 'twitter')[],
-    status: 'scheduled' as const,
-    scheduledAt: '2026-02-09T14:00:00.000Z',
-  },
-  {
-    id: 'post-3',
-    content: '✨ ของใหม่เข้าร้านแล้วค่ะ กระเป๋าสวยๆ นำเข้าจากเกาหลี สนใจทักมาเลยนะคะ 💕',
-    platforms: ['facebook', 'instagram', 'twitter'] as ('facebook' | 'instagram' | 'twitter')[],
-    status: 'draft' as const,
-  },
-  {
-    id: 'post-4',
-    content: '🎉 ขอบคุณลูกค้าทุกท่านที่อุดหนุนค่ะ ยอดขายทะลุ 100 ออเดอร์แล้ว! ปีนี้ปังปุริเย่ 🎊',
-    platforms: ['facebook'] as ('facebook' | 'instagram' | 'twitter')[],
-    status: 'published' as const,
-    publishedAt: '2026-02-06T12:00:00.000Z',
-    engagement: { likes: 89, comments: 15, shares: 5 },
-  },
-  {
-    id: 'post-5',
-    content: '📦 พร้อมส่งวันนี้! สั่งก่อนบ่ายโมง ส่งวันนี้ทุกออเดอร์ ฟรีค่าส่งทั่วไทย',
-    platforms: ['instagram'] as ('facebook' | 'instagram' | 'twitter')[],
-    status: 'scheduled' as const,
-    scheduledAt: '2026-02-10T09:00:00.000Z',
-  },
-  {
-    id: 'post-6',
-    content: '❌ โพสต์นี้โพสต์ไม่สำเร็จ เนื่องจาก API Error',
-    platforms: ['twitter'] as ('facebook' | 'instagram' | 'twitter')[],
-    status: 'failed' as const,
-  },
-];
-
-export function PostsView() {
-  const [statusFilter, setStatusFilter] = useState<PostStatus>('all');
-  const [viewMode, setViewMode] = useState<ViewMode>('grid');
-  const [searchQuery, setSearchQuery] = useState('');
+export function PostsView({ initialViewModel }: PostsViewProps) {
+  const [state, actions] = usePostsPresenter(initialViewModel);
   const [isComposerOpen, setIsComposerOpen] = useState(false);
 
   const headerSpring = useSpring({
@@ -90,27 +45,27 @@ export function PostsView() {
     config: { tension: 200, friction: 20 },
   });
 
-  const filteredPosts = mockPosts.filter((post) => {
-    if (statusFilter !== 'all' && post.status !== statusFilter) {
-      return false;
-    }
-    if (searchQuery && !post.content.toLowerCase().includes(searchQuery.toLowerCase())) {
-      return false;
-    }
-    return true;
-  });
-
   const handleEdit = (id: string) => {
     console.log('Edit post:', id);
   };
 
-  const handleDelete = (id: string) => {
-    console.log('Delete post:', id);
+  const handleDelete = async (id: string) => {
+    if (confirm('ยืนยันการลบโพสต์?')) {
+      await actions.deletePost(id);
+    }
   };
 
   const handleDuplicate = (id: string) => {
     console.log('Duplicate post:', id);
   };
+
+  if (state.loading && state.posts.length === 0) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -138,8 +93,8 @@ export function PostsView() {
           <Search className="w-5 h-5 text-gray-400" />
           <input
             type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            value={state.searchQuery}
+            onChange={(e) => actions.setSearchQuery(e.target.value)}
             placeholder="ค้นหาโพสต์..."
             className="ml-3 flex-1 bg-transparent border-none outline-none text-gray-700 dark:text-gray-300 placeholder-gray-400"
           />
@@ -148,9 +103,9 @@ export function PostsView() {
         {/* View mode toggle */}
         <div className="flex items-center bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-1">
           <button
-            onClick={() => setViewMode('grid')}
+            onClick={() => actions.setViewMode('grid')}
             className={`p-2 rounded-lg transition-colors ${
-              viewMode === 'grid'
+              state.viewMode === 'grid'
                 ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-600'
                 : 'text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800'
             }`}
@@ -158,9 +113,9 @@ export function PostsView() {
             <Grid3X3 className="w-5 h-5" />
           </button>
           <button
-            onClick={() => setViewMode('list')}
+            onClick={() => actions.setViewMode('list')}
             className={`p-2 rounded-lg transition-colors ${
-              viewMode === 'list'
+              state.viewMode === 'list'
                 ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-600'
                 : 'text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800'
             }`}
@@ -174,17 +129,14 @@ export function PostsView() {
       <div className="flex flex-wrap gap-2">
         {statusFilters.map((filter) => {
           const Icon = filter.icon;
-          const count = filter.id === 'all'
-            ? mockPosts.length
-            : mockPosts.filter((p) => p.status === filter.id).length;
-
+          
           return (
             <button
               key={filter.id}
-              onClick={() => setStatusFilter(filter.id as PostStatus)}
+              onClick={() => actions.setStatusFilter(filter.id)}
               className={`
                 inline-flex items-center gap-2 px-4 py-2 rounded-xl font-medium text-sm transition-all
-                ${statusFilter === filter.id
+                ${state.statusFilter === filter.id
                   ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/25'
                   : 'bg-white dark:bg-gray-900 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-800 hover:border-blue-300 dark:hover:border-blue-700'
                 }
@@ -192,26 +144,19 @@ export function PostsView() {
             >
               <Icon className="w-4 h-4" />
               {filter.label}
-              <span className={`px-1.5 py-0.5 rounded-full text-xs ${
-                statusFilter === filter.id
-                  ? 'bg-white/20'
-                  : 'bg-gray-100 dark:bg-gray-800'
-              }`}>
-                {count}
-              </span>
             </button>
           );
         })}
       </div>
 
       {/* Posts grid */}
-      {filteredPosts.length > 0 ? (
+      {state.posts.length > 0 ? (
         <div className={
-          viewMode === 'grid'
+          state.viewMode === 'grid'
             ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4'
             : 'space-y-4'
         }>
-          {filteredPosts.map((post) => (
+          {state.posts.map((post) => (
             <PostCard
               key={post.id}
               post={post}

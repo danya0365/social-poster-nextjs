@@ -6,6 +6,8 @@
  */
 
 import { AnimatedButton } from '@/src/presentation/components/ui/AnimatedButton';
+import { PricingViewModel } from '@/src/presentation/presenters/pricing/PricingPresenter';
+import { usePricingPresenter } from '@/src/presentation/presenters/pricing/usePricingPresenter';
 import { animated, useSpring, useTrail } from '@react-spring/web';
 import {
     ArrowRight,
@@ -19,98 +21,13 @@ import {
     Users,
     Zap,
 } from 'lucide-react';
-import { useState } from 'react';
 
-interface PricingPlan {
-  id: string;
-  name: string;
-  duration: string;
-  originalPrice: number;
-  price: number;
-  pricePerDay: number;
-  savings?: number;
-  features: string[];
-  isPopular?: boolean;
-  isBestValue?: boolean;
-  icon: React.ComponentType<{ className?: string }>;
-  gradient: string;
-}
-
-const plans: PricingPlan[] = [
-  {
-    id: 'weekly',
-    name: '1 สัปดาห์',
-    duration: '7 วัน',
-    originalPrice: 399,
-    price: 399,
-    pricePerDay: 57,
-    features: [
-      'โพสต์อัตโนมัติ 24 ชม.',
-      'เชื่อมต่อ 3 บัญชี',
-      'กลุ่มเป้าหมาย 10 กลุ่ม',
-      'รายงานพื้นฐาน',
-    ],
-    icon: Calendar,
-    gradient: 'from-blue-500 to-cyan-500',
-  },
-  {
-    id: 'monthly',
-    name: '1 เดือน',
-    duration: '30 วัน',
-    originalPrice: 799,
-    price: 799,
-    pricePerDay: 26,
-    features: [
-      'โพสต์อัตโนมัติ 24 ชม.',
-      'เชื่อมต่อ 5 บัญชี',
-      'กลุ่มเป้าหมาย 30 กลุ่ม',
-      'รายงานขั้นสูง',
-      'AI ช่วยเขียนโพสต์',
-    ],
-    icon: Zap,
-    gradient: 'from-purple-500 to-pink-500',
-    isPopular: true,
-  },
-  {
-    id: 'quarterly',
-    name: '3 เดือน',
-    duration: '90 วัน',
-    originalPrice: 2397,
-    price: 2000,
-    pricePerDay: 22,
-    savings: 397,
-    features: [
-      'โพสต์อัตโนมัติ 24 ชม.',
-      'เชื่อมต่อ 10 บัญชี',
-      'กลุ่มเป้าหมาย 50 กลุ่ม',
-      'รายงานขั้นสูง + Export',
-      'AI ช่วยเขียนโพสต์',
-      'ตอบคอมเมนต์อัตโนมัติ',
-    ],
-    icon: Crown,
-    gradient: 'from-orange-500 to-red-500',
-  },
-  {
-    id: 'biannual',
-    name: '5 เดือน',
-    duration: '150 วัน',
-    originalPrice: 3995,
-    price: 3500,
-    pricePerDay: 23,
-    savings: 495,
-    features: [
-      'ทุกฟีเจอร์ใน 3 เดือน',
-      'เชื่อมต่อไม่จำกัด',
-      'กลุ่มเป้าหมายไม่จำกัด',
-      'Priority Support',
-      'API Access',
-      'Custom Analytics',
-    ],
-    icon: Sparkles,
-    gradient: 'from-yellow-500 to-orange-500',
-    isBestValue: true,
-  },
-];
+const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
+  Calendar,
+  Zap,
+  Crown,
+  Sparkles,
+};
 
 const allFeatures = [
   { name: 'โพสต์อัตโนมัติ 24 ชม.', icon: Calendar },
@@ -120,8 +37,13 @@ const allFeatures = [
   { name: 'รายงานและสถิติ', icon: BarChart3 },
 ];
 
-export function PricingView() {
-  const [selectedPlan, setSelectedPlan] = useState<string>('monthly');
+interface PricingViewProps {
+  initialViewModel?: PricingViewModel;
+}
+
+export function PricingView({ initialViewModel }: PricingViewProps) {
+  const [state, actions] = usePricingPresenter(initialViewModel);
+  const { plans, faqs, loading, error, selectedPlanId } = state;
 
   const headerSpring = useSpring({
     from: { opacity: 0, y: -30 },
@@ -136,6 +58,14 @@ export function PricingView() {
     config: { tension: 200, friction: 20 },
   });
 
+  if (loading && plans.length === 0) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-8">
       {/* Header */}
@@ -147,6 +77,12 @@ export function PricingView() {
           เริ่มต้นปีใหม่ด้วยระบบโพสต์ขายอัตโนมัติ 24 ชม. ไม่ต้องนั่งกดโพสต์เอง!
         </p>
       </animated.div>
+
+      {error && (
+        <div className="p-4 bg-red-50 dark:bg-red-900/20 text-red-600 rounded-xl text-center">
+          {error}
+        </div>
+      )}
 
       {/* Features highlight */}
       <div className="flex flex-wrap justify-center gap-4">
@@ -165,14 +101,14 @@ export function PricingView() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {trail.map((spring, index) => {
           const plan = plans[index];
-          const Icon = plan.icon;
-          const isSelected = selectedPlan === plan.id;
+          const Icon = iconMap[plan.iconName] || Zap;
+          const isSelected = selectedPlanId === plan.id;
 
           return (
             <animated.div
               key={plan.id}
               style={spring}
-              onClick={() => setSelectedPlan(plan.id)}
+              onClick={() => actions.selectPlan(plan.id)}
               className={`relative bg-white dark:bg-gray-900 rounded-2xl border-2 p-6 cursor-pointer transition-all ${
                 isSelected
                   ? 'border-blue-500 shadow-lg shadow-blue-500/20'
@@ -206,7 +142,7 @@ export function PricingView() {
 
               {/* Price */}
               <div className="mb-4">
-                {plan.savings && (
+                {plan.savings && plan.savings > 0 && (
                   <p className="text-sm text-gray-400 line-through">
                     ฿{plan.originalPrice.toLocaleString()}
                   </p>
@@ -219,7 +155,7 @@ export function PricingView() {
                 <p className="text-sm text-gray-500 dark:text-gray-400">
                   เฉลี่ยวันละ {plan.pricePerDay} บาท
                 </p>
-                {plan.savings && (
+                {plan.savings && plan.savings > 0 && (
                   <p className="text-sm text-green-500 font-medium mt-1">
                     ประหยัด ฿{plan.savings}
                   </p>
@@ -265,12 +201,7 @@ export function PricingView() {
           คำถามที่พบบ่อย
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {[
-            { q: 'เริ่มใช้งานได้เลยไหม?', a: 'ได้ครับ! หลังชำระเงินสำเร็จ ระบบจะเปิดใช้งานทันที' },
-            { q: 'ปลอดภัยไหม?', a: 'ใช้ระบบ API อย่างเป็นทางการ 100% ไม่ใช่บอทกดจอ' },
-            { q: 'ยกเลิกได้ไหม?', a: 'ยกเลิกได้ทุกเมื่อ ไม่มีค่าใช้จ่ายเพิ่มเติม' },
-            { q: 'มี Support ไหม?', a: 'มีทีมซัพพอร์ตพร้อมช่วยเหลือ 24/7' },
-          ].map((faq, i) => (
+          {faqs.map((faq, i) => (
             <div key={i} className="p-4 bg-gray-50 dark:bg-gray-800 rounded-xl">
               <p className="font-medium text-gray-900 dark:text-white mb-1">{faq.q}</p>
               <p className="text-sm text-gray-500 dark:text-gray-400">{faq.a}</p>
