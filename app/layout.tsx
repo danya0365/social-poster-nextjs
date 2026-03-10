@@ -1,5 +1,6 @@
 import '@/public/styles/index.css';
 import { siteConfig } from '@/src/config/site.config';
+import { AuthProvider } from '@/src/presentation/providers/AuthProvider';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -21,7 +22,7 @@ export default function RootLayout({
   return (
     <html lang="th" suppressHydrationWarning>
       <body className="antialiased">
-        {children}
+        <AuthProvider>{children}</AuthProvider>
       </body>
     </html>
   );

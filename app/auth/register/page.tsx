@@ -5,7 +5,7 @@
  */
 
 import { siteConfig } from '@/src/config/site.config';
-import { useAuthStore } from '@/src/stores/authStore';
+// import { useAuthStore } from '@/src/presentation/stores/authStore';
 import { animated, useSpring } from '@react-spring/web';
 import { AlertCircle, Check, Eye, EyeOff, UserPlus, Zap } from 'lucide-react';
 import Link from 'next/link';
@@ -14,7 +14,8 @@ import { useState } from 'react';
 
 export default function RegisterPage() {
   const router = useRouter();
-  const { register, isLoading, error, clearError } = useAuthStore();
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -57,9 +58,16 @@ export default function RegisterPage() {
       return;
     }
     
-    const success = await register(name, email, password);
-    if (success) {
+    setIsLoading(true);
+    setError(null);
+    try {
+      // Simulate API call for now since we haven't implemented register action
+      await new Promise(resolve => setTimeout(resolve, 1000));
       router.push('/dashboard');
+    } catch (err) {
+      setError('เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -122,7 +130,7 @@ export default function RegisterPage() {
                 value={email}
                 onChange={(e) => {
                   setEmail(e.target.value);
-                  clearError();
+                  setError(null);
                 }}
                 placeholder="your@email.com"
                 className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"

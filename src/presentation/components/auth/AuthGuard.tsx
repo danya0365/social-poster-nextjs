@@ -5,7 +5,7 @@
  * Protects routes requiring authentication
  */
 
-import { useAuthStore } from '@/src/stores/authStore';
+import { useAuthStore } from '@/src/presentation/stores/authStore';
 import { Zap } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';

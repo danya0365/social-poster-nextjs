@@ -7,7 +7,7 @@
 
 import { ThemeToggle } from '@/src/presentation/components/layout/ThemeToggle';
 import { AnimatedButton } from '@/src/presentation/components/ui/AnimatedButton';
-import { useAuthStore } from '@/src/stores/authStore';
+import { useAuthStore } from '@/src/presentation/stores/authStore';
 import { animated, useSpring } from '@react-spring/web';
 import { Bell, ChevronDown, Crown, LogOut, Menu, Plus, Search, Settings, User } from 'lucide-react';
 import Link from 'next/link';
@@ -22,7 +22,7 @@ interface DashboardHeaderProps {
 
 export function DashboardHeader({ isMobile, isSidebarOpen, onToggleSidebar }: DashboardHeaderProps) {
   const router = useRouter();
-  const { user, logout, isAuthenticated } = useAuthStore();
+  const { user, activeProfile } = useAuthStore();
   const [showUserMenu, setShowUserMenu] = useState(false);
 
   const headerSpring = useSpring({
@@ -31,9 +31,12 @@ export function DashboardHeader({ isMobile, isSidebarOpen, onToggleSidebar }: Da
     config: { tension: 200, friction: 20 },
   });
 
-  const handleLogout = () => {
-    logout();
-    router.push('/');
+  const handleLogout = async () => {
+    // Rely on the layout Header's ProfileSwitcher logout function, or implement full logout here.
+    // Dashboard header should not implement its own logout if ProfileSwitcher covers it, but since it's here:
+    const { logoutAction } = await import('@/src/presentation/actions/authActions');
+    await logoutAction();
+    window.location.href = '/auth/login';
   };
 
   return (
@@ -104,10 +107,10 @@ export function DashboardHeader({ isMobile, isSidebarOpen, onToggleSidebar }: Da
               <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center">
                 <User className="w-4 h-4 text-white" />
               </div>
-              {!isMobile && user && (
+              {!isMobile && activeProfile && (
                 <>
                   <span className="text-sm font-medium text-gray-700 dark:text-gray-300 max-w-[100px] truncate">
-                    {user.name}
+                    {activeProfile.name}
                   </span>
                   <ChevronDown className="w-4 h-4 text-gray-400" />
                 </>
@@ -125,36 +128,32 @@ export function DashboardHeader({ isMobile, isSidebarOpen, onToggleSidebar }: Da
                   {/* User info */}
                   <div className="p-4 border-b border-gray-200 dark:border-gray-700">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center">
-                        <User className="w-5 h-5 text-white" />
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center overflow-hidden">
+                        {activeProfile?.avatarUrl ? (
+                           <img src={activeProfile.avatarUrl} alt={activeProfile.name} className="w-full h-full object-cover" />
+                        ) : (
+                           <User className="w-5 h-5 text-white" />
+                        )}
                       </div>
                       <div>
                         <p className="font-medium text-gray-900 dark:text-white">
-                          {user?.name || 'Guest'}
+                          {activeProfile?.name || 'Guest'}
                         </p>
                         <p className="text-sm text-gray-500 truncate">
                           {user?.email || ''}
                         </p>
                       </div>
                     </div>
-                    {user?.isDemo && (
-                      <div className="mt-3 px-2 py-1 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 rounded-lg text-xs text-center">
-                        Demo Account
-                      </div>
-                    )}
                   </div>
 
-                  {/* Plan badge */}
-                  {user && (
+                  {/* Role badge */}
+                  {activeProfile && (
                     <div className="p-3 border-b border-gray-200 dark:border-gray-700">
                       <div className="flex items-center justify-between">
-                        <span className="text-sm text-gray-600 dark:text-gray-400">แพ็กเกจ</span>
-                        <span className="flex items-center gap-1 text-sm font-medium text-blue-600">
+                        <span className="text-sm text-gray-600 dark:text-gray-400">บทบาท (Role)</span>
+                        <span className="flex items-center gap-1 text-sm font-medium text-blue-600 capitalize">
                           <Crown className="w-4 h-4" />
-                          {user.plan === 'free' ? 'ฟรี' : 
-                           user.plan === 'monthly' ? '1 เดือน' :
-                           user.plan === 'quarterly' ? '3 เดือน' : 
-                           user.plan === 'yearly' ? '1 ปี' : '1 สัปดาห์'}
+                          {activeProfile.roleId}
                         </span>
                       </div>
                     </div>

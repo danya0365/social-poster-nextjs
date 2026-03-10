@@ -5,7 +5,7 @@
  */
 
 import { siteConfig } from '@/src/config/site.config';
-import { useAuthStore } from '@/src/stores/authStore';
+import { loginAction } from '@/src/presentation/actions/authActions';
 import { animated, useSpring } from '@react-spring/web';
 import { AlertCircle, Eye, EyeOff, LogIn, User, Zap } from 'lucide-react';
 import Link from 'next/link';
@@ -14,7 +14,8 @@ import { useState } from 'react';
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login, loginWithDemo, isLoading, error, clearError } = useAuthStore();
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -27,15 +28,45 @@ export default function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const success = await login(email, password);
-    if (success) {
-      router.push('/dashboard');
+    setIsLoading(true);
+    try {
+      const formData = new FormData();
+      formData.append('email', email);
+      formData.append('password', password);
+      
+      const result = await loginAction(formData);
+      if (result.success) {
+        window.location.href = '/dashboard'; // Force full reload to update session context
+      } else {
+        setError(result.error || 'เข้าสู่ระบบไม่สำเร็จ');
+      }
+    } catch (err) {
+      setError('เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง');
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const handleDemoLogin = () => {
-    loginWithDemo();
-    router.push('/dashboard');
+  const handleDemoLogin = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      // Use mock account from our new seed-mock
+      const formData = new FormData();
+      formData.append('email', 'test@example.com');
+      formData.append('password', 'password123');
+      
+      const result = await loginAction(formData);
+      if (result.success) {
+        window.location.href = '/dashboard';
+      } else {
+        setError(result.error || 'เข้าสู่ระบบด้วย Demo ไม่สำเร็จ');
+      }
+    } catch (err) {
+      setError('เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -101,7 +132,7 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => {
                   setEmail(e.target.value);
-                  clearError();
+                  setError(null);
                 }}
                 placeholder="your@email.com"
                 className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -119,7 +150,7 @@ export default function LoginPage() {
                   value={password}
                   onChange={(e) => {
                     setPassword(e.target.value);
-                    clearError();
+                    setError(null);
                   }}
                   placeholder="••••••••"
                   className="w-full px-4 py-3 pr-12 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"

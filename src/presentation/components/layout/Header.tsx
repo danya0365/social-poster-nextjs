@@ -6,11 +6,12 @@
  */
 
 import { siteConfig } from '@/src/config/site.config';
-import { useAuthStore } from '@/src/stores/authStore';
+import { useAuthStore } from '@/src/presentation/stores/authStore';
 import { animated, useSpring } from '@react-spring/web';
 import { LogIn, Menu, UserPlus, X, Zap } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
+import { ProfileSwitcher } from './ProfileSwitcher';
 import { ThemeToggle } from './ThemeToggle';
 
 const navLinks = [
@@ -22,7 +23,7 @@ const navLinks = [
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { isAuthenticated, user } = useAuthStore();
+  const { isAuthenticated } = useAuthStore();
 
   const logoSpring = useSpring({
     from: { opacity: 0, x: -20 },
@@ -72,18 +73,7 @@ export function Header() {
             <ThemeToggle />
             
             {isAuthenticated ? (
-              /* Already logged in - go to dashboard */
-              <Link
-                href="/dashboard"
-                className="hidden sm:inline-flex items-center px-4 py-2 rounded-full 
-                  bg-gradient-to-r from-blue-600 to-purple-600 
-                  text-white font-medium text-sm
-                  hover:from-blue-700 hover:to-purple-700
-                  transform hover:scale-105 transition-all duration-200
-                  shadow-lg shadow-blue-500/25"
-              >
-                ไปยัง Dashboard
-              </Link>
+              <ProfileSwitcher />
             ) : (
               /* Not logged in - show login/register */
               <>
