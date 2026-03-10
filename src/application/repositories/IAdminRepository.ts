@@ -3,6 +3,8 @@
  * Repository interface for Admin data access
  */
 
+import { StatusType } from '@/src/domain/types/social';
+
 export interface AdminStats {
   totalUsers: number;
   activeSessions: number;
@@ -14,7 +16,7 @@ export interface SystemLog {
   id: string;
   message: string;
   timestamp: string;
-  type: 'info' | 'warning' | 'error';
+  type: StatusType;
 }
 
 export interface IAdminRepository {

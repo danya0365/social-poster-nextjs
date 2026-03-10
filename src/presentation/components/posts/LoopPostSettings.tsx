@@ -5,6 +5,7 @@
  * Component for configuring automatic post looping/repeating
  */
 
+import { IntervalUnit } from '@/src/domain/types/social';
 import { animated, useSpring } from '@react-spring/web';
 import {
     Calendar,
@@ -17,7 +18,7 @@ import { useState } from 'react';
 interface LoopConfig {
   enabled: boolean;
   interval: number; // in hours
-  intervalUnit: 'hours' | 'days';
+  intervalUnit: IntervalUnit;
   maxRepeat: number; // 0 = unlimited
   startTime: string;
   endTime: string;
@@ -133,7 +134,7 @@ export function LoopPostSettings({
                   value={config.intervalUnit}
                   onChange={(e) =>
                     updateConfig({
-                      intervalUnit: e.target.value as 'hours' | 'days',
+                      intervalUnit: e.target.value as IntervalUnit,
                     })
                   }
                   className="px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-white"

@@ -3,12 +3,14 @@
  * Repository interface for Loop Post data access
  */
 
+import { IntervalUnit, LoopStatus } from '@/src/domain/types/social';
+
 export interface LoopPost {
   id: string;
   content: string;
-  status: 'active' | 'paused' | 'completed';
+  status: LoopStatus;
   interval: number;
-  intervalUnit: 'hours' | 'days';
+  intervalUnit: IntervalUnit;
   totalPosts: number;
   postsCompleted: number;
   nextPostTime: string;

@@ -5,6 +5,7 @@
  * Individual post card with status, platforms, and actions
  */
 
+import { PostStatus, SocialPlatform } from '@/src/domain/types/social';
 import { SocialIcon } from '@/src/presentation/components/ui/SocialIcon';
 import { animated, useSpring } from '@react-spring/web';
 import {
@@ -27,8 +28,8 @@ interface PostCardProps {
     id: string;
     content: string;
     mediaUrls?: string[];
-    platforms: ('facebook' | 'instagram' | 'twitter')[];
-    status: 'draft' | 'scheduled' | 'published' | 'failed';
+    platforms: SocialPlatform[];
+    status: PostStatus;
     scheduledAt?: string;
     publishedAt?: string;
     engagement?: {

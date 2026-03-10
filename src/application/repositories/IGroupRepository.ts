@@ -3,14 +3,12 @@
  * Repository interface for Group data access
  */
 
-export type GroupPlatform = 'facebook' | 'instagram' | 'twitter';
-export type GroupType = 'group' | 'page' | 'profile' | 'community';
-export type GroupStatus = 'active' | 'pending' | 'error';
+import { GroupStatus, GroupType, SocialPlatform } from '../../domain/types/social';
 
 export interface SocialGroup {
   id: string;
   name: string;
-  platform: GroupPlatform;
+  platform: SocialPlatform;
   type: GroupType;
   members: number;
   autoPost: boolean;

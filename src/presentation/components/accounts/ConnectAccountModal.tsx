@@ -5,6 +5,7 @@
  * Modal for connecting new social media accounts
  */
 
+import { SocialPlatform } from '@/src/domain/types/social';
 import { AnimatedButton } from '@/src/presentation/components/ui/AnimatedButton';
 import { animated, useSpring } from '@react-spring/web';
 import { ArrowRight, Facebook, Instagram, Shield, Twitter, X } from 'lucide-react';
@@ -13,7 +14,7 @@ import { useState } from 'react';
 interface ConnectAccountModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onConnect: (platform: 'facebook' | 'instagram' | 'twitter') => void;
+  onConnect: (platform: SocialPlatform) => void;
 }
 
 const platforms = [
@@ -169,7 +170,7 @@ export function ConnectAccountModal({ isOpen, onClose, onConnect }: ConnectAccou
           <AnimatedButton
             variant="gradient"
             fullWidth
-            onClick={() => selectedPlatform && onConnect(selectedPlatform as 'facebook' | 'instagram' | 'twitter')}
+            onClick={() => selectedPlatform && onConnect(selectedPlatform as SocialPlatform)}
             disabled={!selectedPlatform}
           >
             เชื่อมต่อบัญชี

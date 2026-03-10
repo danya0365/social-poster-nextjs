@@ -3,7 +3,8 @@
  * Handles business logic for the posts management page
  */
 
-import { IPostRepository, Post, PostStatus } from '@/src/application/repositories/IPostRepository';
+import { IPostRepository, Post } from '@/src/application/repositories/IPostRepository';
+import { PostStatus } from '@/src/domain/types/social';
 
 export interface PostsViewModel {
   posts: Post[];

@@ -10,9 +10,9 @@ import {
     PaginatedResult,
     Post,
     PostStats,
-    PostStatus,
     UpdatePostData,
 } from '@/src/application/repositories/IPostRepository';
+import { PostStatus } from '@/src/domain/types/social';
 
 // Mock data
 const MOCK_POSTS: Post[] = [

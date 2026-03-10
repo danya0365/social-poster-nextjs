@@ -5,6 +5,7 @@
  * Calendar view for scheduling posts
  */
 
+import { SocialPlatform } from '@/src/domain/types/social';
 import { AnimatedButton } from '@/src/presentation/components/ui/AnimatedButton';
 import { SocialIcon } from '@/src/presentation/components/ui/SocialIcon';
 import { animated, useSpring, useTrail } from '@react-spring/web';
@@ -20,7 +21,7 @@ import { useState } from 'react';
 interface ScheduledPost {
   id: string;
   content: string;
-  platforms: ('facebook' | 'instagram' | 'twitter')[];
+  platforms: SocialPlatform[];
   scheduledAt: string;
 }
 

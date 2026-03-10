@@ -3,11 +3,11 @@
  * Repository interface for Notification data access
  */
 
-export type NotificationType = 'success' | 'error' | 'warning' | 'info';
+import { StatusType } from '@/src/domain/types/social';
 
 export interface Notification {
   id: string;
-  type: NotificationType;
+  type: StatusType;
   title: string;
   message: string;
   time: string;

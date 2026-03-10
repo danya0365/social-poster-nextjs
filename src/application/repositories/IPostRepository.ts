@@ -4,8 +4,7 @@
  * Following Clean Architecture - Application layer
  */
 
-export type PostStatus = 'draft' | 'scheduled' | 'published' | 'failed';
-export type Platform = 'facebook' | 'instagram' | 'twitter';
+import { PostStatus, SocialPlatform } from '../../domain/types/social';
 
 export interface PostEngagement {
   likes: number;
@@ -19,7 +18,7 @@ export interface Post {
   content: string;
   mediaUrls: string[];
   status: PostStatus;
-  platforms: Platform[];
+  platforms: SocialPlatform[];
   scheduledAt?: string;
   publishedAt?: string;
   engagement: PostEngagement;
@@ -39,7 +38,7 @@ export interface CreatePostData {
   userId: string;
   content: string;
   mediaUrls?: string[];
-  platforms: Platform[];
+  platforms: SocialPlatform[];
   scheduledAt?: string;
 }
 
@@ -47,7 +46,7 @@ export interface UpdatePostData {
   content?: string;
   mediaUrls?: string[];
   status?: PostStatus;
-  platforms?: Platform[];
+  platforms?: SocialPlatform[];
   scheduledAt?: string;
 }
 

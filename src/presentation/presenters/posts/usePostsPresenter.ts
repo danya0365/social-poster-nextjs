@@ -1,6 +1,7 @@
 'use client';
 
-import { Post, PostStatus } from '@/src/application/repositories/IPostRepository';
+import { Post } from '@/src/application/repositories/IPostRepository';
+import { PostStatus } from '@/src/domain/types/social';
 import { useEffect, useMemo, useState } from 'react';
 import { PostsPresenter, PostsViewModel } from './PostsPresenter';
 import { createClientPostsPresenter } from './PostsPresenterClientFactory';

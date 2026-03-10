@@ -3,13 +3,12 @@
  * Repository interface for Social Account data access
  */
 
-export type AccountPlatform = 'facebook' | 'instagram' | 'twitter';
-export type AccountStatus = 'connected' | 'expired' | 'disconnected' | 'error';
+import { AccountStatus, SocialPlatform } from '../../domain/types/social';
 
 export interface SocialAccount {
   id: string;
   userId: string;
-  platform: AccountPlatform;
+  platform: SocialPlatform;
   name: string;
   username: string;
   status: AccountStatus;

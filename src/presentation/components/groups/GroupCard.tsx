@@ -5,17 +5,18 @@
  * Card for displaying target groups
  */
 
+import { GroupStatus, GroupType, SocialPlatform } from '@/src/domain/types/social';
 import { SocialIcon } from '@/src/presentation/components/ui/SocialIcon';
 import { animated, useSpring } from '@react-spring/web';
 import {
-    AlertCircle,
-    CheckCircle,
-    Clock,
-    Edit3,
-    ExternalLink,
-    MoreVertical,
-    Trash2,
-    Users
+  AlertCircle,
+  CheckCircle,
+  Clock,
+  Edit3,
+  ExternalLink,
+  MoreVertical,
+  Trash2,
+  Users
 } from 'lucide-react';
 import { useState } from 'react';
 
@@ -23,13 +24,13 @@ interface GroupCardProps {
   group: {
     id: string;
     name: string;
-    platform: 'facebook' | 'instagram' | 'twitter';
-    type: 'group' | 'page' | 'profile' | 'community';
+    platform: SocialPlatform;
+    type: GroupType;
     members?: number;
     autoPost: boolean;
     autoComment: boolean;
     lastActivity?: string;
-    status: 'active' | 'pending' | 'error';
+    status: GroupStatus;
   };
   onEdit?: (id: string) => void;
   onDelete?: (id: string) => void;

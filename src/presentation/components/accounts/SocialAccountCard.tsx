@@ -5,6 +5,7 @@
  * Card for displaying connected social media accounts
  */
 
+import { AccountStatus as DomainAccountStatus, SocialPlatform } from '@/src/domain/types/social';
 import { SocialIcon } from '@/src/presentation/components/ui/SocialIcon';
 import { animated, useSpring } from '@react-spring/web';
 import {
@@ -23,11 +24,11 @@ import { useState } from 'react';
 interface SocialAccountCardProps {
   account: {
     id: string;
-    platform: 'facebook' | 'instagram' | 'twitter';
+    platform: SocialPlatform;
     name: string;
     username: string;
     avatar?: string;
-    status: 'connected' | 'expired' | 'disconnected' | 'error';
+    status: DomainAccountStatus;
     followers?: number;
     posts?: number;
     lastSync?: string;

@@ -8,10 +8,10 @@
 import { animated, useSpring } from '@react-spring/web';
 import { Facebook, Instagram, Twitter } from 'lucide-react';
 
-type Platform = 'facebook' | 'instagram' | 'twitter';
+import { SocialPlatform } from '@/src/domain/types/social';
 
 interface SocialIconProps {
-  platform: Platform;
+  platform: SocialPlatform;
   size?: 'xs' | 'sm' | 'md' | 'lg';
   showLabel?: boolean;
   onClick?: () => void;

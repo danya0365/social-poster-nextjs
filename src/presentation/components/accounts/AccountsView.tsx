@@ -5,7 +5,7 @@
  * Main social accounts management page
  */
 
-import { AccountPlatform } from '@/src/application/repositories/IAccountRepository';
+import { SocialPlatform } from '@/src/domain/types/social';
 import { AnimatedButton } from '@/src/presentation/components/ui/AnimatedButton';
 import { AccountsViewModel } from '@/src/presentation/presenters/accounts/AccountsPresenter';
 import { useAccountsPresenter } from '@/src/presentation/presenters/accounts/useAccountsPresenter';
@@ -39,7 +39,7 @@ export function AccountsView({ initialViewModel }: AccountsViewProps) {
     await actions.syncAll();
   };
 
-  const handleConnect = (platform: AccountPlatform) => {
+  const handleConnect = (platform: SocialPlatform) => {
     console.log('Connect platform:', platform);
     setIsModalOpen(false);
     // In real app, would redirect to OAuth
