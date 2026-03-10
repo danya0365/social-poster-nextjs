@@ -1,36 +1,96 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+<p align="center">
+  <img src="https://raw.githubusercontent.com/lucide-icons/lucide/main/icons/share-2.svg" alt="Social Poster Logo" width="120" height="120">
+</p>
 
-## Getting Started
+<h1 align="center">Social Poster</h1>
 
-First, run the development server:
+<p align="center">
+  <strong>The Ultimate Next.js Social Media Management Platform</strong><br>
+  Schedule, loop, and automate your social media presence with ease.
+</p>
+
+<p align="center">
+  <a href="#features">Features</a> •
+  <a href="#architecture">Architecture</a> •
+  <a href="#tech-stack">Tech Stack</a> •
+  <a href="#getting-started">Getting Started</a> •
+  <a href="#development-status">Development Status</a>
+</p>
+
+---
+
+## 🚀 Overview
+
+**Social Poster** is a modern, high-performance Social Media Management tool built with Next.js and React. It empowers users to manage multiple social accounts, schedule posts seamlessly, set up auto-comments, and dive deep into analytics—all from a single, beautifully designed dashboard.
+
+Whether you're managing a personal brand or a large-scale marketing campaign, Social Poster provides the tools necessary to stay consistent, organized, and engaged with your audience.
+
+## ✨ Features
+
+- 📅 **Smart Post Scheduling**: Plan your content calendar across platforms visually.
+- 🔁 **Loop Posting**: Automatically recycle and repost evergreen content.
+- 💬 **Auto-Comment & Replies**: Set up advanced auto-commenting rules to keep engagement high.
+- 👥 **Group Management**: Seamlessly post to multiple social media groups at once.
+- 📊 **Detailed Analytics**: Track your growth, reach, and engagement with real-time charts.
+- 📱 **Responsive Dashboard**: Manage your campaigns on the go with a mobile-first, dark-mode ready UI.
+
+## 🏗 Architecture
+
+The project strictly follows **Clean Architecture** principles to ensure maintainability, testability, and scalability:
+
+```text
+src/
+├── application/     # Use cases, application business rules
+├── infrastructure/  # External integrations (APIs, Databases, local/remote services)
+├── presentation/    # React components, UI logic, layouts, and views
+└── stores/          # State management (Zustand)
+```
+
+## 💻 Tech Stack
+
+- **Framework**: [Next.js](https://nextjs.org/) (App Router)
+- **Library**: [React 19](https://react.dev/)
+- **Styling**: [Tailwind CSS v4](https://tailwindcss.com/)
+- **State Management**: [Zustand](https://github.com/pmndrs/zustand)
+- **Icons**: [Lucide React](https://lucide.dev/)
+- **Animations**: [@react-spring/web](https://react-spring.dev/)
+- **Language**: [TypeScript](https://www.typescriptlang.org/)
+
+## 📈 Development Status
+
+Currently, the project is rapidly advancing through the **Frontend Prototyping Phase**:
+- ✅ Clean Architecture foundation established.
+- ✅ App Router structure built for all core modules (`/dashboard`, `/schedule`, `/analytics`, etc.).
+- ✅ Beautiful, responsive UI components designed and mocked up.
+- 🚧 API Integrations & Backend wiring (In Progress).
+
+## 🚀 Getting Started
+
+First, ensure you have Node.js installed, then clone the repository and install dependencies:
 
 ```bash
+# Install dependencies
+npm install
+# or
+yarn install
+# or
+pnpm install
+
+# Start the development server
 npm run dev
 # or
 yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 🤝 Contributing
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Contributions, issues, and feature requests are welcome!
+Feel free to check out the [issues page](https://github.com/your-username/social-poster/issues).
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+<p align="center">
+  Built with ❤️ using Next.js
+</p>
