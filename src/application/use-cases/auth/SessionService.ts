@@ -30,9 +30,9 @@ export class SessionService {
     }
   }
 
-  static async createSession(userId: string, email: string) {
+  static async createSession(userId: string, email: string, activeProfileId?: string) {
     const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-    const session = await this.encrypt({ userId, email });
+    const session = await this.encrypt({ userId, email, activeProfileId });
     const cookieStore = await cookies();
 
     cookieStore.set('session', session, {

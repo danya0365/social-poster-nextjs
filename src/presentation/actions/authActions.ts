@@ -2,6 +2,7 @@
 
 import { SessionService } from '../../application/use-cases/auth/SessionService';
 import { SignInUseCase } from '../../application/use-cases/auth/SignInUseCase';
+import { SignUpUseCase } from '../../application/use-cases/auth/SignUpUseCase';
 import { SwitchProfileUseCase } from '../../application/use-cases/profiles/SwitchProfileUseCase';
 import { DrizzleProfileRepository } from '../../infrastructure/repositories/drizzle-profile-repository';
 import { DrizzleUserRepository } from '../../infrastructure/repositories/drizzle-user-repository';
@@ -11,6 +12,7 @@ import { DrizzleUserRepository } from '../../infrastructure/repositories/drizzle
 const userRepo = new DrizzleUserRepository();
 const profileRepo = new DrizzleProfileRepository();
 const signInUseCase = new SignInUseCase(userRepo);
+const signUpUseCase = new SignUpUseCase(userRepo, profileRepo);
 const switchProfileUseCase = new SwitchProfileUseCase(profileRepo);
 
 export async function loginAction(formData: FormData) {
@@ -24,6 +26,22 @@ export async function loginAction(formData: FormData) {
     if (profiles.length > 0) {
       await switchProfileUseCase.execute(user.id, profiles[0].id);
     }
+    return { success: true };
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      return { success: false, error: error.message };
+    }
+    return { success: false, error: 'Unknown error occurred' };
+  }
+}
+
+export async function registerAction(formData: FormData) {
+  const name = formData.get('name') as string;
+  const email = formData.get('email') as string;
+  const password = formData.get('password') as string;
+
+  try {
+    await signUpUseCase.execute(name, email, password);
     return { success: true };
   } catch (error: unknown) {
     if (error instanceof Error) {

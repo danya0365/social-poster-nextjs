@@ -5,7 +5,7 @@
  */
 
 import { siteConfig } from '@/src/config/site.config';
-// import { useAuthStore } from '@/src/presentation/stores/authStore';
+import { registerAction } from '@/src/presentation/actions/authActions';
 import { animated, useSpring } from '@react-spring/web';
 import { AlertCircle, Check, Eye, EyeOff, UserPlus, Zap } from 'lucide-react';
 import Link from 'next/link';
@@ -61,9 +61,17 @@ export default function RegisterPage() {
     setIsLoading(true);
     setError(null);
     try {
-      // Simulate API call for now since we haven't implemented register action
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      router.push('/dashboard');
+      const formData = new FormData();
+      formData.append('name', name);
+      formData.append('email', email);
+      formData.append('password', password);
+
+      const result = await registerAction(formData);
+      if (result.success) {
+        window.location.href = '/dashboard';
+      } else {
+        setError(result.error || 'สมัครสมาชิกไม่สำเร็จ');
+      }
     } catch (err) {
       setError('เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง');
     } finally {
