@@ -10,6 +10,8 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
+    "db:setup": "npm run db:push && npm run seed:starter",
+    "db:reset": "npm run db:push --force && npm run seed:starter",
     "db:studio": "drizzle-kit studio",
     "seed:starter": "tsx --env-file=.env.local scripts/seed-starter.ts",
     "seed:mock": "tsx --env-file=.env.local scripts/seed-mock.ts"

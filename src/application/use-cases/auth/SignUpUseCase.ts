@@ -24,14 +24,22 @@ export class SignUpUseCase {
       passwordHash,
     });
 
-    // Automatically create a default "Personal" profile for the new user
-    const defaultProfile = await this.profileRepository.create({
-      id: crypto.randomUUID(),
-      userId: newUser.id,
-      roleId: 'viewer', // Default least-privileged role from schema
-      name: name || 'ผู้ใช้ใหม่',
-      avatarUrl: null,
-    });
+    let defaultProfile;
+    try {
+      // Automatically create a default "Personal" profile for the new user
+      defaultProfile = await this.profileRepository.create({
+        id: crypto.randomUUID(),
+        userId: newUser.id,
+        roleId: 'viewer', // Default least-privileged role from schema
+        name: name || 'ผู้ใช้ใหม่',
+        avatarUrl: null,
+      });
+    } catch (error: any) {
+      if (error.message?.toLowerCase().includes('foreign key constraint failed')) {
+        throw new Error('🔧 [Dev Error]: ตาราง Roles ใน Database ยังไม่ได้ถูก Seed ข้อมูล! 🚀 กรุณารันคำสั่ง `yarn db:setup` หรือ `yarn seed:starter` ก่อนทำการสมัครสมาชิกครับ');
+      }
+      throw error;
+    }
 
     // Immediately create session 
     await SessionService.createSession(newUser.id, newUser.email, defaultProfile.id);
