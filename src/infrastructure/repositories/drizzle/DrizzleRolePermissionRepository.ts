@@ -1,5 +1,5 @@
 import { eq, inArray } from 'drizzle-orm';
-import { IRolePermissionRepository, Permission, Role } from '../../application/interfaces/repositories';
+import { IRolePermissionRepository, Permission, Role } from '../../application/repositories/IRolePermissionRepository';
 import { db } from '../database/client';
 import { permissions, profilePermissions, rolePermissions, roles } from '../database/schema';
 

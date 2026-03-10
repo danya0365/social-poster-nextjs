@@ -9,7 +9,7 @@ import { ThemeToggle } from '@/src/presentation/components/layout/ThemeToggle';
 import { AnimatedButton } from '@/src/presentation/components/ui/AnimatedButton';
 import { useAuthStore } from '@/src/presentation/stores/authStore';
 import { animated, useSpring } from '@react-spring/web';
-import { Bell, ChevronDown, Crown, LogOut, Menu, Plus, Search, Settings, User } from 'lucide-react';
+import { Bell, ChevronDown, Crown, LogOut, Menu, Plus, Search, Settings, Shield, User as UserIcon } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
@@ -105,7 +105,7 @@ export function DashboardHeader({ isMobile, isSidebarOpen, onToggleSidebar }: Da
               className="flex items-center space-x-2 p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
             >
               <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center">
-                <User className="w-4 h-4 text-white" />
+                <UserIcon className="w-4 h-4 text-white" />
               </div>
               {!isMobile && activeProfile && (
                 <>
@@ -132,7 +132,7 @@ export function DashboardHeader({ isMobile, isSidebarOpen, onToggleSidebar }: Da
                         {activeProfile?.avatarUrl ? (
                            <img src={activeProfile.avatarUrl} alt={activeProfile.name} className="w-full h-full object-cover" />
                         ) : (
-                           <User className="w-5 h-5 text-white" />
+                           <UserIcon className="w-5 h-5 text-white" />
                         )}
                       </div>
                       <div>
@@ -161,6 +161,24 @@ export function DashboardHeader({ isMobile, isSidebarOpen, onToggleSidebar }: Da
 
                   {/* Menu items */}
                   <div className="p-2">
+                    {activeProfile?.roleId === 'admin' && (
+                      <Link
+                        href="/admin"
+                        onClick={() => setShowUserMenu(false)}
+                        className="flex items-center gap-2 px-3 py-2 rounded-lg bg-red-50 hover:bg-red-100 text-red-700 font-bold border border-red-200"
+                      >
+                        <Shield className="w-4 h-4" />
+                        ระบบผู้ดูแลพื้นหลัง (Admin)
+                      </Link>
+                    )}
+                    <Link
+                      href="/account"
+                      onClick={() => setShowUserMenu(false)}
+                      className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300"
+                    >
+                      <UserIcon className="w-4 h-4" />
+                      จัดการบัญชีส่วนกลาง
+                    </Link>
                     <Link
                       href="/dashboard/settings"
                       onClick={() => setShowUserMenu(false)}
@@ -186,4 +204,3 @@ export function DashboardHeader({ isMobile, isSidebarOpen, onToggleSidebar }: Da
     </animated.header>
   );
 }
-

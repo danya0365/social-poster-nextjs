@@ -1,5 +1,6 @@
 import { create } from 'zustand';
-import { AuthUser, UserProfile } from '../../application/interfaces/repositories';
+import { UserProfile } from '../../application/repositories/IProfileRepository';
+import { AuthUser } from '../../application/repositories/IUserRepository';
 
 interface AuthState {
   user: Pick<AuthUser, 'id' | 'email'> | null;

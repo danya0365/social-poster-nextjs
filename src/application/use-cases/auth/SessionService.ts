@@ -1,38 +1,11 @@
-import { SignJWT, jwtVerify } from 'jose';
 import { cookies } from 'next/headers';
-
-const secretKey = process.env.JWT_SECRET || 'fallback_secret_for_dev_only';
-const encodedKey = new TextEncoder().encode(secretKey);
-
-export interface SessionPayload {
-  userId: string;
-  email: string;
-  activeProfileId?: string; // Optional: The profile they are currently using
-}
+import 'server-only';
+import { JwtService, SessionPayload } from './JwtService';
 
 export class SessionService {
-  static async encrypt(payload: SessionPayload) {
-    return new SignJWT(payload as unknown as Record<string, unknown>)
-      .setProtectedHeader({ alg: 'HS256' })
-      .setIssuedAt()
-      .setExpirationTime('7d') // 1 week session
-      .sign(encodedKey);
-  }
-
-  static async decrypt(session: string | undefined = '') {
-    try {
-      const { payload } = await jwtVerify(session, encodedKey, {
-        algorithms: ['HS256'],
-      });
-      return payload as unknown as SessionPayload;
-    } catch {
-      return null;
-    }
-  }
-
   static async createSession(userId: string, email: string, activeProfileId?: string) {
     const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-    const session = await this.encrypt({ userId, email, activeProfileId });
+    const session = await JwtService.encrypt({ userId, email, activeProfileId });
     const cookieStore = await cookies();
 
     cookieStore.set('session', session, {
@@ -49,14 +22,13 @@ export class SessionService {
     const sessionCookie = cookieStore.get('session')?.value;
     if (!sessionCookie) return;
 
-    const payload = await this.decrypt(sessionCookie);
+    const payload = await JwtService.decrypt(sessionCookie);
     if (!payload) return;
 
     payload.activeProfileId = activeProfileId;
     
-    // Re-sign session
     const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-    const newSession = await this.encrypt(payload);
+    const newSession = await JwtService.encrypt(payload);
     
     cookieStore.set('session', newSession, {
       httpOnly: true,
@@ -67,10 +39,10 @@ export class SessionService {
     });
   }
 
-  static async getSession() {
+  static async getSession(): Promise<SessionPayload | null> {
     const cookieStore = await cookies();
     const sessionCookie = cookieStore.get('session')?.value;
-    return this.decrypt(sessionCookie);
+    return JwtService.decrypt(sessionCookie);
   }
 
   static async destroySession() {

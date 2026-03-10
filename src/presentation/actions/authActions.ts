@@ -4,8 +4,8 @@ import { SessionService } from '../../application/use-cases/auth/SessionService'
 import { SignInUseCase } from '../../application/use-cases/auth/SignInUseCase';
 import { SignUpUseCase } from '../../application/use-cases/auth/SignUpUseCase';
 import { SwitchProfileUseCase } from '../../application/use-cases/profiles/SwitchProfileUseCase';
-import { DrizzleProfileRepository } from '../../infrastructure/repositories/drizzle-profile-repository';
-import { DrizzleUserRepository } from '../../infrastructure/repositories/drizzle-user-repository';
+import { DrizzleProfileRepository } from '../../infrastructure/repositories/drizzle/DrizzleProfileRepository';
+import { DrizzleUserRepository } from '../../infrastructure/repositories/drizzle/DrizzleUserRepository';
 
 // Initialize Repositories and Use Cases
 // (In a full DI setup, this would come from a container)
@@ -22,7 +22,7 @@ export async function loginAction(formData: FormData) {
   try {
     const user = await signInUseCase.execute(email, password);
     // After login, we fetch profiles and set the first one as active by default
-    const profiles = await profileRepo.findByUserId(user.id);
+    const profiles = await profileRepo.getByUserId(user.id);
     if (profiles.length > 0) {
       await switchProfileUseCase.execute(user.id, profiles[0].id);
     }
@@ -67,7 +67,7 @@ export async function getSessionAction() {
   const session = await SessionService.getSession();
   if (!session) return null;
 
-  const profiles = await profileRepo.findByUserId(session.userId);
+  const profiles = await profileRepo.getByUserId(session.userId);
   const activeProfile = session.activeProfileId 
     ? profiles.find(p => p.id === session.activeProfileId) 
     : profiles[0];

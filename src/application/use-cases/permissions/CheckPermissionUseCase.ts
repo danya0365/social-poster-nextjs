@@ -1,4 +1,4 @@
-import { IRolePermissionRepository } from '../../interfaces/repositories';
+import { IRolePermissionRepository } from '../../repositories/IRolePermissionRepository';
 
 export class CheckPermissionUseCase {
   constructor(private rolePermRepository: IRolePermissionRepository) {}

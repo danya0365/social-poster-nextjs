@@ -1,5 +1,6 @@
 import * as bcrypt from 'bcryptjs';
-import { AuthUser, IProfileRepository, IUserRepository } from '../../interfaces/repositories';
+import { IProfileRepository } from '../../repositories/IProfileRepository';
+import { AuthUser, IUserRepository } from '../../repositories/IUserRepository';
 import { SessionService } from './SessionService';
 
 export class SignUpUseCase {
@@ -9,7 +10,7 @@ export class SignUpUseCase {
   ) {}
 
   async execute(name: string, email: string, password: string): Promise<AuthUser> {
-    const existingUser = await this.userRepository.findByEmail(email);
+    const existingUser = await this.userRepository.getByEmail(email);
     if (existingUser) {
       throw new Error('อีเมลนี้ถูกใช้งานแล้ว (Email already exists)');
     }
@@ -34,8 +35,8 @@ export class SignUpUseCase {
         name: name || 'ผู้ใช้ใหม่',
         avatarUrl: null,
       });
-    } catch (error: any) {
-      if (error.message?.toLowerCase().includes('foreign key constraint failed')) {
+    } catch (error: unknown) {
+      if (error instanceof Error && error.message?.toLowerCase().includes('foreign key constraint failed')) {
         throw new Error('🔧 [Dev Error]: ตาราง Roles ใน Database ยังไม่ได้ถูก Seed ข้อมูล! 🚀 กรุณารันคำสั่ง `yarn db:setup` หรือ `yarn seed:starter` ก่อนทำการสมัครสมาชิกครับ');
       }
       throw error;

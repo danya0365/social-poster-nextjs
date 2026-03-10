@@ -2,16 +2,14 @@
  * IUserRepository
  * Repository interface for User data access
  * Following Clean Architecture - Application layer
+ * 
+ * Note: This wraps the Authentication User (auth_users)
  */
 
-export interface User {
+export interface AuthUser {
   id: string;
   email: string;
-  displayName: string;
-  avatarUrl?: string;
-  subscriptionPlanId: string;
-  subscriptionExpiredAt: string;
-  isActive: boolean;
+  passwordHash: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -22,26 +20,39 @@ export interface UserStats {
   inactiveUsers: number;
 }
 
-export interface CreateUserData {
-  email: string;
-  displayName: string;
-  avatarUrl?: string;
-}
-
-export interface UpdateUserData {
-  displayName?: string;
-  avatarUrl?: string;
-  subscriptionPlanId?: string;
-  subscriptionExpiredAt?: string;
-  isActive?: boolean;
-}
-
 export interface IUserRepository {
-  getById(id: string): Promise<User | null>;
-  getAll(): Promise<User[]>;
-  getByEmail(email: string): Promise<User | null>;
-  create(data: CreateUserData): Promise<User>;
-  update(id: string, data: UpdateUserData): Promise<User>;
+  /**
+   * Get user by ID
+   */
+  getById(id: string): Promise<AuthUser | null>;
+
+  /**
+   * Get user by Email
+   */
+  getByEmail(email: string): Promise<AuthUser | null>;
+
+  /**
+   * Get all users
+   */
+  getAll(): Promise<AuthUser[]>;
+
+  /**
+   * Create a new user
+   */
+  create(data: Omit<AuthUser, 'createdAt' | 'updatedAt'>): Promise<AuthUser>;
+
+  /**
+   * Update an existing user
+   */
+  update(id: string, data: Partial<AuthUser>): Promise<AuthUser>;
+
+  /**
+   * Delete a user
+   */
   delete(id: string): Promise<boolean>;
+
+  /**
+   * Get statistics
+   */
   getStats(): Promise<UserStats>;
 }
