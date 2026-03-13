@@ -8,11 +8,12 @@
 import { siteConfig } from '@/src/config/site.config';
 import { useAuthStore } from '@/src/presentation/stores/authStore';
 import { animated, useSpring } from '@react-spring/web';
-import { LogIn, Menu, UserPlus, X, Zap } from 'lucide-react';
+import { LogIn, Menu, Shield, UserPlus, X, Zap } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
 import { ProfileSwitcher } from './ProfileSwitcher';
 import { ThemeToggle } from './ThemeToggle';
+import { UserAvatar } from '../ui/UserAvatar';
 
 const navLinks = [
   { name: 'หน้าแรก', href: '/' },
@@ -20,6 +21,33 @@ const navLinks = [
   { name: 'ราคา', href: '#pricing' },
   { name: 'ติดต่อ', href: '#contact' },
 ];
+
+function ProfileHeaderInfo() {
+  const { activeProfile } = useAuthStore();
+  if (!activeProfile) return null;
+
+  return (
+    <>
+      <UserAvatar 
+        name={activeProfile.name}
+        src={activeProfile.avatarUrl}
+        showGlow
+      />
+
+      <div className="flex flex-col items-start overflow-hidden ml-3">
+        <span className="text-sm font-bold text-gray-900 dark:text-gray-100 truncate w-full tracking-tight">
+          {activeProfile.name}
+        </span>
+        <div className="flex items-center gap-1.5 mt-0.5 px-2 py-0.5 rounded-full bg-blue-50 dark:bg-blue-900/20 border border-blue-100/50 dark:border-blue-800/50">
+          <Shield className="w-3 h-3 text-blue-600 dark:text-blue-400" /> 
+          <span className="text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest">
+            {activeProfile.roleId}
+          </span>
+        </div>
+      </div>
+    </>
+  );
+}
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -69,17 +97,28 @@ export function Header() {
           </div>
 
           {/* Actions */}
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-2 md:space-x-3">
             <ThemeToggle />
             
             {isAuthenticated ? (
-              <ProfileSwitcher />
+              <div className="flex items-center gap-2">
+                <Link
+                  href="/dashboard"
+                  className="hidden md:inline-flex items-center gap-2 px-4 py-2 rounded-full 
+                    bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 font-medium text-sm
+                    hover:bg-gray-200 dark:hover:bg-gray-700 transition-all duration-200"
+                >
+                  <Zap className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                  Dashboard
+                </Link>
+                <ProfileSwitcher />
+              </div>
             ) : (
               /* Not logged in - show login/register */
               <>
                 <Link
                   href="/auth/login"
-                  className="hidden sm:inline-flex items-center gap-1 px-4 py-2 rounded-full 
+                  className="hidden md:inline-flex items-center gap-1 px-4 py-2 rounded-full 
                     text-gray-700 dark:text-gray-300 font-medium text-sm
                     hover:bg-gray-100 dark:hover:bg-gray-800
                     transition-all duration-200"
@@ -89,7 +128,7 @@ export function Header() {
                 </Link>
                 <Link
                   href="/auth/register"
-                  className="hidden sm:inline-flex items-center gap-1 px-4 py-2 rounded-full 
+                  className="hidden md:inline-flex items-center gap-1 px-4 py-2 rounded-full 
                     bg-gradient-to-r from-blue-600 to-purple-600 
                     text-white font-medium text-sm
                     hover:from-blue-700 hover:to-purple-700
@@ -123,6 +162,13 @@ export function Header() {
             className="md:hidden absolute top-full left-0 right-0 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border-b border-gray-200/50 dark:border-gray-700/50"
           >
             <div className="px-4 py-4 space-y-2">
+              {isAuthenticated && (
+                <div className="px-5 py-5 mb-4 bg-gradient-to-br from-gray-50 to-gray-100/50 dark:from-gray-800/50 dark:to-gray-900/50 rounded-3xl border border-gray-200/50 dark:border-gray-700/50 shadow-inner">
+                   <div className="flex items-center">
+                     <ProfileHeaderInfo />
+                   </div>
+                </div>
+              )}
               {navLinks.map((link) => (
                 <Link
                   key={link.name}
@@ -136,6 +182,7 @@ export function Header() {
               {isAuthenticated ? (
                 <Link
                   href="/dashboard"
+                  onClick={() => setIsMenuOpen(false)}
                   className="block px-4 py-3 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 text-white text-center font-medium"
                 >
                   ไปยัง Dashboard

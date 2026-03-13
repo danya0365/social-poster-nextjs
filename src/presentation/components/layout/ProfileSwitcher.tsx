@@ -5,6 +5,7 @@ import { useAuthStore } from '@/src/presentation/stores/authStore';
 import { ChevronDown, LogOut, Shield } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { UserAvatar } from '../ui/UserAvatar';
 
 export function ProfileSwitcher() {
   const router = useRouter();
@@ -34,12 +35,12 @@ export function ProfileSwitcher() {
     <div className="relative">
       <button 
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-3 p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+        className="flex items-center gap-3 p-1.5 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
       >
-        <img 
-          src={activeProfile.avatarUrl || `https://ui-avatars.com/api/?name=${activeProfile.name}`} 
-          alt={activeProfile.name}
-          className="w-8 h-8 rounded-full shadow-sm"
+        <UserAvatar 
+          name={activeProfile.name} 
+          src={activeProfile.avatarUrl} 
+          size="sm"
         />
         <div className="hidden md:flex flex-col items-start">
           <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">
@@ -66,10 +67,11 @@ export function ProfileSwitcher() {
                 className={`w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors text-left
                   ${profile.id === activeProfile.id ? 'bg-blue-50/50 dark:bg-blue-900/10' : ''}`}
               >
-                <img 
-                  src={profile.avatarUrl || `https://ui-avatars.com/api/?name=${profile.name}`} 
-                  alt={profile.name}
-                  className="w-8 h-8 rounded-full"
+                <UserAvatar 
+                  name={profile.name} 
+                  src={profile.avatarUrl} 
+                  size="sm"
+                  showBorder={profile.id === activeProfile.id}
                 />
                 <div className="flex-1 overflow-hidden">
                   <div className={`text-sm font-medium truncate ${profile.id === activeProfile.id ? 'text-blue-600 dark:text-blue-400' : 'text-gray-700 dark:text-gray-300'}`}>
