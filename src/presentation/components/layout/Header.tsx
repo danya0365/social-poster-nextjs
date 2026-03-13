@@ -11,9 +11,9 @@ import { animated, useSpring } from '@react-spring/web';
 import { LogIn, Menu, Shield, UserPlus, X, Zap } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
+import { UserAvatar } from '../ui/UserAvatar';
 import { ProfileSwitcher } from './ProfileSwitcher';
 import { ThemeToggle } from './ThemeToggle';
-import { UserAvatar } from '../ui/UserAvatar';
 
 const navLinks = [
   { name: 'หน้าแรก', href: '/' },
@@ -180,13 +180,22 @@ export function Header() {
                 </Link>
               ))}
               {isAuthenticated ? (
-                <Link
-                  href="/dashboard"
-                  onClick={() => setIsMenuOpen(false)}
-                  className="block px-4 py-3 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 text-white text-center font-medium"
-                >
-                  ไปยัง Dashboard
-                </Link>
+                <>
+                  <Link
+                    href="/dashboard"
+                    onClick={() => setIsMenuOpen(false)}
+                    className="block px-4 py-3 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 text-white text-center font-medium mb-1"
+                  >
+                    ไปยัง Dashboard
+                  </Link>
+                  <a
+                    href="/account"
+                    onClick={() => setIsMenuOpen(false)}
+                    className="block px-4 py-3 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-center font-medium"
+                  >
+                    จัดการบัญชี
+                  </a>
+                </>
               ) : (
                 <>
                   <Link

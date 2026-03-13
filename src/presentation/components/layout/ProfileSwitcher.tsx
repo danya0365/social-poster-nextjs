@@ -2,7 +2,7 @@
 
 import { logoutAction, switchProfileAction } from '@/src/presentation/actions/authActions';
 import { useAuthStore } from '@/src/presentation/stores/authStore';
-import { ChevronDown, LogOut, Shield } from 'lucide-react';
+import { ChevronDown, LogOut, Settings, Shield } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { UserAvatar } from '../ui/UserAvatar';
@@ -88,7 +88,14 @@ export function ProfileSwitcher() {
             ))}
           </div>
 
-          <div className="border-t border-gray-100 dark:border-gray-800 p-2">
+          <div className="border-t border-gray-100 dark:border-gray-800 p-2 space-y-1">
+            <a 
+              href="/account"
+              className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+            >
+              <Settings className="w-4 h-4" />
+              จัดการบัญชี
+            </a>
             <button 
               onClick={handleLogout}
               className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-lg transition-colors"
