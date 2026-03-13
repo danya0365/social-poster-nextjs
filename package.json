@@ -15,7 +15,7 @@
     "db:studio": "drizzle-kit studio",
     "seed:starter": "tsx --env-file=.env.local scripts/seed-starter.ts",
     "seed:mock": "tsx --env-file=.env.local scripts/seed-mock.ts",
-    "db:admin": "ts-node scripts/make-admin.ts"
+    "db:admin": "tsx --env-file=.env.local scripts/make-admin.ts"
   },
   "dependencies": {
     "@libsql/client": "^0.17.0",

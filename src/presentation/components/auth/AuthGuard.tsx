@@ -17,22 +17,19 @@ interface AuthGuardProps {
 export function AuthGuard({ children }: AuthGuardProps) {
   const router = useRouter();
   const { isAuthenticated } = useAuthStore();
-  const [isChecking, setIsChecking] = useState(true);
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
-    // Small delay to allow hydration
-    const timer = setTimeout(() => {
-      if (!isAuthenticated) {
-        router.push('/auth/login');
-      } else {
-        setIsChecking(false);
-      }
-    }, 100);
+    if (isMounted && !isAuthenticated) {
+      router.push('/auth/login');
+    }
+  }, [isAuthenticated, isMounted]);
 
-    return () => clearTimeout(timer);
-  }, [isAuthenticated, router]);
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
-  if (isChecking) {
+  if (!isMounted) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center">
         <div className="text-center">

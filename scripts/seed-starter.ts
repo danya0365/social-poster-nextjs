@@ -1,6 +1,7 @@
+import bcrypt from 'bcryptjs';
 import * as dotenv from 'dotenv';
 import { db } from '../src/infrastructure/database/client';
-import { permissions, rolePermissions, roles } from '../src/infrastructure/database/schema';
+import { authUsers, permissions, rolePermissions, roles, userProfiles } from '../src/infrastructure/database/schema';
 dotenv.config({ path: '.env.local' });
 
 async function seedStarter() {
@@ -55,6 +56,27 @@ async function seedStarter() {
 
   await db.insert(rolePermissions).values(allRolePermissions).onConflictDoNothing();
   console.log('✅ Role-Permissions mapping seeded');
+  
+  // 4. Create Default Admin User
+  console.log('👤 Creating default admin user...');
+  const adminId = 'admin-user-id';
+  const adminEmail = 'admin@example.com';
+  const passwordHash = await bcrypt.hash('admin1234', 10);
+
+  await db.insert(authUsers).values({
+    id: adminId,
+    email: adminEmail,
+    passwordHash: passwordHash,
+  }).onConflictDoNothing();
+
+  await db.insert(userProfiles).values({
+    id: 'admin-profile-id',
+    userId: adminId,
+    roleId: 'admin',
+    name: 'Default Admin',
+  }).onConflictDoNothing();
+
+  console.log('✅ Default admin user created (admin@example.com / admin1234)');
 
   console.log('🚀 Starter seed completed!');
   process.exit(0);
