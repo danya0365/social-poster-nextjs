@@ -1,204 +1,22 @@
 @import "tailwindcss";
 
-/* custom variants */
-@custom-variant dark (&:where(.dark, .dark *));
-
 /* ============================================
-   CSS Variables for Theming
+   Social Poster — Main Entry Point
+   All styles are organized into separate modules:
+   
+   1. theme.css      → @theme tokens, variables, dark mode
+   2. base.css       → Base element styles (body, scrollbar)
+   3. animations.css → @keyframes + animation utilities
+   4. components.css → Glassmorphism, cards, components
    ============================================ */
-:root {
-  /* Colors - Light Mode */
-  --color-primary: #3b82f6;
-  --color-primary-dark: #2563eb;
-  --color-secondary: #8b5cf6;
-  --color-accent: #ec4899;
-  
-  /* Background */
-  --color-background: #ffffff;
-  --color-foreground: #0f172a;
-  --color-muted: #64748b;
-  
-  /* Surfaces */
-  --color-surface: #f8fafc;
-  --color-surface-hover: #f1f5f9;
-  --color-border: #e2e8f0;
-  
-  /* Gradients */
-  --gradient-primary: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
-  --gradient-hero: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 50%, #ec4899 100%);
-  
-  /* Shadows */
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
-  --shadow-glow: 0 0 20px rgba(59, 130, 246, 0.3);
+
+@import "./theme.css";
+
+@layer base {
+  @import "./base.css";
 }
 
-.dark {
-  /* Colors - Dark Mode */
-  --color-primary: #60a5fa;
-  --color-primary-dark: #3b82f6;
-  --color-secondary: #a78bfa;
-  --color-accent: #f472b6;
-  
-  /* Background */
-  --color-background: #0f172a;
-  --color-foreground: #f8fafc;
-  --color-muted: #94a3b8;
-  
-  /* Surfaces */
-  --color-surface: #1e293b;
-  --color-surface-hover: #334155;
-  --color-border: #334155;
-  
-  /* Shadows */
-  --shadow-glow: 0 0 20px rgba(96, 165, 250, 0.2);
-}
-
-/* ============================================
-   Base Styles
-   ============================================ */
-html {
-  scroll-behavior: smooth;
-}
-
-body {
-  background-color: var(--color-background);
-  color: var(--color-foreground);
-  font-family: var(--font-noto-sans-thai), sans-serif;
-  transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-/* ============================================
-   Glassmorphism Utilities
-   ============================================ */
-.glass {
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.dark .glass {
-  background: rgba(15, 23, 42, 0.7);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.glass-card {
-  background: rgba(255, 255, 255, 0.6);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-}
-
-.dark .glass-card {
-  background: rgba(30, 41, 59, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-/* ============================================
-   Animation Keyframes
-   ============================================ */
-@keyframes float {
-  0%, 100% {
-    transform: translateY(0px);
-  }
-  50% {
-    transform: translateY(-10px);
-  }
-}
-
-@keyframes pulse-glow {
-  0%, 100% {
-    box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
-  }
-  50% {
-    box-shadow: 0 0 40px rgba(59, 130, 246, 0.5);
-  }
-}
-
-@keyframes gradient-shift {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-}
-
-@keyframes shimmer {
-  0% {
-    background-position: -200% 0;
-  }
-  100% {
-    background-position: 200% 0;
-  }
-}
-
-/* ============================================
-   Animation Utilities
-   ============================================ */
-.animate-float {
-  animation: float 3s ease-in-out infinite;
-}
-
-.animate-pulse-glow {
-  animation: pulse-glow 2s ease-in-out infinite;
-}
-
-.animate-gradient {
-  background-size: 200% 200%;
-  animation: gradient-shift 3s ease infinite;
-}
-
-.animate-shimmer {
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(255, 255, 255, 0.2) 50%,
-    transparent 100%
-  );
-  background-size: 200% 100%;
-  animation: shimmer 2s infinite;
-}
-
-/* ============================================
-   Custom Scrollbar
-   ============================================ */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: var(--color-surface);
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--color-border);
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--color-muted);
-}
-
-/* ============================================
-   Selection Styles
-   ============================================ */
-::selection {
-  background-color: var(--color-primary);
-  color: white;
-}
-
-/* ============================================
-   Focus Styles
-   ============================================ */
-:focus-visible {
-  outline: 2px solid var(--color-primary);
-  outline-offset: 2px;
+@layer components {
+  @import "./animations.css";
+  @import "./components.css";
 }
