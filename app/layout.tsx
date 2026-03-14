@@ -2,6 +2,15 @@ import '@/public/styles/index.css';
 import { siteConfig } from '@/src/config/site.config';
 import { AuthProvider } from '@/src/presentation/providers/AuthProvider';
 import type { Metadata } from 'next';
+import { Noto_Sans_Thai } from 'next/font/google';
+
+const notoSansThai = Noto_Sans_Thai({
+  variable: '--font-noto-sans-thai',
+  subsets: ['thai', 'latin'],
+  weight: ['300', '400', '500', '600', '700'],
+  display: 'swap',
+});
+
 
 export const metadata: Metadata = {
   title: siteConfig.title,
@@ -21,7 +30,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="th" suppressHydrationWarning>
-      <body className="antialiased">
+      <body className={`${notoSansThai.variable} antialiased`}>
         <AuthProvider>{children}</AuthProvider>
       </body>
     </html>

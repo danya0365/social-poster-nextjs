@@ -3,9 +3,6 @@
 /* custom variants */
 @custom-variant dark (&:where(.dark, .dark *));
 
-@import "./fonts.css";
-@import "./globals.css";
-
 /* ============================================
    CSS Variables for Theming
    ============================================ */
@@ -68,6 +65,7 @@ html {
 body {
   background-color: var(--color-background);
   color: var(--color-foreground);
+  font-family: var(--font-noto-sans-thai), sans-serif;
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
